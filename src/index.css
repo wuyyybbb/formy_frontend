@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局样式 */
+@layer base {
+  * {
+    @apply border-dark-border;
+  }
+
+  body {
+    @apply bg-dark text-text-primary font-sans antialiased;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* 科技感点阵背景 */
+  .tech-grid-bg {
+    background-color: #111111;
+    background-image: 
+      radial-gradient(circle, rgba(255, 36, 1, 0.08) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+
+  /* 滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-dark;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dark-border rounded-sm;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-tertiary;
+  }
+}
+
+@layer components {
+  /* 按钮样式 */
+  .btn-primary {
+    @apply bg-primary text-dark font-semibold px-6 py-3 rounded-sm
+           hover:bg-primary/90 transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent border-2 border-accent text-accent
+           px-6 py-3 rounded-sm font-semibold
+           hover:bg-accent/10 transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-text-primary px-6 py-3 rounded-sm
+           hover:bg-dark-card transition-all duration-200
+           focus:outline-none;
+  }
+
+  /* 卡片样式 */
+  .card {
+    @apply bg-dark-card border border-dark-border rounded-md p-6
+           hover:border-primary/30 transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:border-primary hover:shadow-lg hover:shadow-primary/10;
+  }
+
+  /* 输入框样式 */
+  .input {
+    @apply bg-dark-card border border-dark-border text-text-primary
+           px-4 py-2 rounded-sm w-full
+           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+           placeholder:text-text-tertiary
+           transition-all duration-200;
+  }
+
+  /* 标题样式 */
+  .title-h1 {
+    @apply text-5xl md:text-6xl font-bold leading-tight;
+  }
+
+  .title-h2 {
+    @apply text-3xl md:text-4xl font-semibold leading-tight;
+  }
+
+  .title-h3 {
+    @apply text-2xl font-medium leading-tight;
+  }
+
+  /* 容器 */
+  .container-center {
+    @apply max-w-content mx-auto px-4 md:px-6;
+  }
+}
+
+@layer utilities {
+  /* 发光效果 */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(0, 226, 199, 0.3);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(255, 36, 1, 0.3);
+  }
+
+  /* 过渡动画 */
+  .transition-base {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .transition-slow {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
+
