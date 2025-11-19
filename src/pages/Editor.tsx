@@ -35,11 +35,9 @@ export default function Editor() {
   
   // 任务状态
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
-  const [taskStatus, setTaskStatus] = useState<TaskStatus | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
   // 处理原图上传
   const handleSourceUpload = (result: UploadResult | null) => {

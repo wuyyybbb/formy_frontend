@@ -16,7 +16,7 @@ interface MobileControlsProps {
 export default function MobileControls({
   mode,
   sourceImage,
-  referenceImage,
+  referenceImage: _referenceImage,
   onSourceImageChange,
   onReferenceImageChange,
   onGenerate,

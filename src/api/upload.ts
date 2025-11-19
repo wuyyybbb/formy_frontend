@@ -39,11 +39,12 @@ export async function uploadImage(
   formData.append('purpose', purpose)
 
   // 发送请求
-  return await apiClient.post<UploadImageResponse>('/upload', formData, {
+  const response = await apiClient.post<UploadImageResponse>('/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
+  return response.data
 }
 
 /**

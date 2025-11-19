@@ -65,7 +65,8 @@ export interface CurrentUserResponse {
  * @returns 发送结果
  */
 export async function sendVerificationCode(email: string): Promise<SendCodeResponse> {
-  return await apiClient.post<SendCodeResponse>('/auth/send-code', { email })
+  const response = await apiClient.post<SendCodeResponse>('/auth/send-code', { email })
+  return response.data
 }
 
 /**
@@ -75,7 +76,8 @@ export async function sendVerificationCode(email: string): Promise<SendCodeRespo
  * @returns 登录结果（包含 token 和用户信息）
  */
 export async function loginWithCode(email: string, code: string): Promise<LoginResponse> {
-  return await apiClient.post<LoginResponse>('/auth/login', { email, code })
+  const response = await apiClient.post<LoginResponse>('/auth/login', { email, code })
+  return response.data
 }
 
 /**
@@ -83,7 +85,8 @@ export async function loginWithCode(email: string, code: string): Promise<LoginR
  * @returns 用户信息
  */
 export async function getCurrentUser(): Promise<CurrentUserResponse> {
-  return await apiClient.get<CurrentUserResponse>('/auth/me')
+  const response = await apiClient.get<CurrentUserResponse>('/auth/me')
+  return response.data
 }
 
 // ==================== 本地存储工具 ====================

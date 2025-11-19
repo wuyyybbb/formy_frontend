@@ -100,7 +100,8 @@ export interface TaskListResponse {
  * @returns 任务信息
  */
 export async function createTask(request: CreateTaskRequest): Promise<TaskInfo> {
-  return await apiClient.post<TaskInfo>('/tasks', request)
+  const response = await apiClient.post<TaskInfo>('/tasks', request)
+  return response.data
 }
 
 /**
@@ -109,7 +110,8 @@ export async function createTask(request: CreateTaskRequest): Promise<TaskInfo> 
  * @returns 任务信息
  */
 export async function getTask(taskId: string): Promise<TaskInfo> {
-  return await apiClient.get<TaskInfo>(`/tasks/${taskId}`)
+  const response = await apiClient.get<TaskInfo>(`/tasks/${taskId}`)
+  return response.data
 }
 
 /**
@@ -123,7 +125,8 @@ export async function listTasks(params?: {
   page?: number
   page_size?: number
 }): Promise<TaskListResponse> {
-  return await apiClient.get<TaskListResponse>('/tasks', { params })
+  const response = await apiClient.get<TaskListResponse>('/tasks', { params })
+  return response.data
 }
 
 /**

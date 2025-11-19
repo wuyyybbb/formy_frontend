@@ -42,12 +42,8 @@ export default function UploadArea({ label, image, onChange, purpose = 'source' 
       console.error('图片上传失败:', error)
       setUploadError(error instanceof Error ? error.message : '上传失败，请重试')
       
-      // 上传失败时，仍然显示本地预览
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        onChange(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+      // 上传失败时，不调用 onChange
+      // 用户需要重新上传
     } finally {
       setIsUploading(false)
     }

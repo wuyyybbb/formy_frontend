@@ -1,7 +1,7 @@
 /**
  * HTTP 客户端封装 - 基于 Axios
  */
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, AxiosError } from 'axios'
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
@@ -45,8 +45,8 @@ const createAxiosInstance = (): AxiosInstance => {
   // 响应拦截器
   instance.interceptors.response.use(
     (response) => {
-      // 直接返回 data，简化调用
-      return response.data
+      // 返回完整的 response，由调用方决定是否需要 .data
+      return response
     },
     (error: AxiosError) => {
       // 统一错误处理

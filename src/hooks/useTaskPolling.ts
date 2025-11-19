@@ -43,7 +43,7 @@ export function useTaskPolling({
   const [isPolling, setIsPolling] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isMountedRef = useRef(true)
 
   // 停止轮询
