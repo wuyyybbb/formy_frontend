@@ -7,8 +7,15 @@ interface LoginModalProps {
   onLoginSuccess?: () => void
 }
 
+// 📧 邮箱记忆功能 - localStorage key
+const REMEMBERED_EMAIL_KEY = 'formy_remembered_email'
+
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
-  const [email, setEmail] = useState('')
+  // 从 localStorage 读取上次使用的邮箱
+  const [email, setEmail] = useState(() => {
+    const remembered = localStorage.getItem(REMEMBERED_EMAIL_KEY)
+    return remembered || ''
+  })
   const [code, setCode] = useState('')
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [loading, setLoading] = useState(false)
@@ -57,13 +64,25 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
     try {
       const result = await sendVerificationCode(email)
-      console.log('验证码发送成功:', result)
+      console.log('✅ 验证码发送成功:', result)
+      
+      // 💾 保存邮箱地址到本地，下次自动填充
+      localStorage.setItem(REMEMBERED_EMAIL_KEY, email)
       
       setStep('code')
       setCountdown(60) // 60 秒倒计时
-    } catch (err) {
-      console.error('发送验证码失败:', err)
-      setError(err instanceof Error ? err.message : '发送失败，请稍后重试')
+    } catch (err: any) {
+      console.error('❌ 发送验证码失败:', err)
+      
+      // 更友好的错误提示
+      let errorMessage = '发送失败，请稍后重试'
+      if (err.response) {
+        errorMessage = err.response.data?.detail || errorMessage
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -184,24 +203,55 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           {step === 'code' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">验证码</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium">验证码</label>
+                  <span className="text-xs text-text-tertiary">
+                    {code.length}/6
+                  </span>
+                </div>
                 <input
                   type="text"
+                  inputMode="numeric"
                   value={code}
                   onChange={(e) => {
                     const value = e.target.value.replace(/\D/g, '').slice(0, 6)
                     setCode(value)
+                    // 自动提交：输入满 6 位后自动登录
+                    if (value.length === 6) {
+                      setTimeout(() => {
+                        const btn = document.getElementById('login-btn')
+                        btn?.click()
+                      }, 300)
+                    }
                   }}
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  onPaste={(e) => {
+                    // 支持粘贴验证码
+                    e.preventDefault()
+                    const paste = e.clipboardData.getData('text')
+                    const value = paste.replace(/\D/g, '').slice(0, 6)
+                    setCode(value)
+                    if (value.length === 6) {
+                      setTimeout(() => {
+                        const btn = document.getElementById('login-btn')
+                        btn?.click()
+                      }, 300)
+                    }
+                  }}
                   placeholder="请输入6位验证码"
-                  className="input w-full text-center text-2xl tracking-widest"
+                  className="input w-full text-center text-2xl tracking-widest font-mono"
                   maxLength={6}
                   disabled={loading}
                   autoFocus
+                  autoComplete="one-time-code"
                 />
+                <p className="text-xs text-text-tertiary mt-2 text-center">
+                  💡 提示：输入完成后会自动登录
+                </p>
               </div>
 
               <button
+                id="login-btn"
                 onClick={handleLogin}
                 disabled={loading || code.length !== 6}
                 className="btn-primary w-full py-3"
