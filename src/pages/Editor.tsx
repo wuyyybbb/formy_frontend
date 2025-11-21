@@ -5,6 +5,7 @@ import ControlPanel from '../components/editor/ControlPanel'
 import PreviewPanel from '../components/editor/PreviewPanel'
 import MobilePreview from '../components/editor/MobilePreview'
 import MobileControls from '../components/editor/MobileControls'
+import HistorySidebar from '../components/editor/HistorySidebar'
 import { UploadResult } from '../components/editor/UploadArea'
 import { createTask, EditMode as ApiEditMode, TaskStatus, TaskInfo } from '../api/tasks'
 import { useTaskPolling } from '../hooks/useTaskPolling'
@@ -41,6 +42,7 @@ export default function Editor() {
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState<string | null>(null)
   const [_errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [historyKey, setHistoryKey] = useState(0) // 用于触发历史记录刷新
   
   // 处理原图上传
   const handleSourceUpload = (result: UploadResult | null) => {
@@ -102,6 +104,9 @@ export default function Editor() {
       } else {
         setComparisonImage(null)
       }
+      
+      // 刷新历史记录
+      setHistoryKey(prev => prev + 1)
     },
     onError: (taskInfo: TaskInfo) => {
       // 任务失败
@@ -230,6 +235,23 @@ export default function Editor() {
             currentStep={currentStep}
           />
         </div>
+
+        {/* History Sidebar */}
+        <HistorySidebar
+          key={historyKey}
+          currentMode={currentMode}
+          onSelectTask={(task) => {
+            // 点击历史任务时，显示其结果
+            if (task.result?.output_image) {
+              const resultUrl = getImageUrl(task.result.output_image)
+              setResultImage(resultUrl)
+            }
+            if (task.result?.comparison_image) {
+              const comparisonUrl = getImageUrl(task.result.comparison_image)
+              setComparisonImage(comparisonUrl)
+            }
+          }}
+        />
       </div>
 
       {/* Main Content - Mobile Layout */}
