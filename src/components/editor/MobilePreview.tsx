@@ -23,7 +23,7 @@ export default function MobilePreview({
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center px-4">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-sm text-text-secondary mb-2">AI 处理中...</p>
+                <p className="text-sm text-text-secondary mb-2 font-medium">🎨 AI 创作中...</p>
                 
                 {/* 进度条 */}
                 {progress > 0 && (
@@ -38,9 +38,20 @@ export default function MobilePreview({
                   </div>
                 )}
                 
-                {/* 当前步骤 */}
+                {/* 当前步骤 - 更友好的提示 */}
                 {currentStep && (
-                  <p className="text-text-tertiary text-xs mt-1">{currentStep}</p>
+                  <p className="text-text-tertiary text-xs mt-1">
+                    {currentStep.includes('调用') || currentStep.includes('引擎') || currentStep.includes('AI') 
+                      ? '⏳ 前方拥堵，请耐心等待～预计 2-3 分钟' 
+                      : currentStep}
+                  </p>
+                )}
+                
+                {/* 如果没有 currentStep，显示友好提示 */}
+                {!currentStep && progress > 30 && (
+                  <p className="text-text-tertiary text-xs mt-1">
+                    ⏳ AI 正在努力创作，请稍候...
+                  </p>
                 )}
               </div>
             </div>

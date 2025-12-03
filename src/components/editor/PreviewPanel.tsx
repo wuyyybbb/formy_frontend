@@ -60,7 +60,7 @@ export default function PreviewPanel({
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center px-4">
                     <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-text-secondary mb-2">AI 处理中...</p>
+                    <p className="text-text-secondary mb-2 font-medium">🎨 AI 创作中...</p>
                     
                     {/* 进度条 */}
                     {progress > 0 && (
@@ -75,9 +75,20 @@ export default function PreviewPanel({
                       </div>
                     )}
                     
-                    {/* 当前步骤 */}
+                    {/* 当前步骤 - 更友好的提示 */}
                     {currentStep && (
-                      <p className="text-text-tertiary text-sm mt-2">{currentStep}</p>
+                      <p className="text-text-tertiary text-sm mt-2">
+                        {currentStep.includes('调用') || currentStep.includes('引擎') || currentStep.includes('AI') 
+                          ? '⏳ 前方拥堵，请耐心等待～预计需要 2-3 分钟' 
+                          : currentStep}
+                      </p>
+                    )}
+                    
+                    {/* 如果没有 currentStep，显示友好提示 */}
+                    {!currentStep && progress > 30 && (
+                      <p className="text-text-tertiary text-sm mt-2">
+                        ⏳ AI 正在努力创作，请稍候片刻...
+                      </p>
                     )}
                   </div>
                 </div>
