@@ -9,7 +9,6 @@ export default function LandingPage() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [user, setUser] = useState<UserInfo | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null) // 选中的套餐
   const [showBetaModal, setShowBetaModal] = useState(false) // 内测弹窗状态
   const [playingVideos, setPlayingVideos] = useState<Set<number>>(new Set()) // 正在播放的视频
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map()) // 视频元素引用
@@ -696,7 +695,7 @@ export default function LandingPage() {
           {/* Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {/* Starter Plan */}
-            <div className={`card group hover:border-primary/50 transition-all duration-300 ${selectedPlan === 'starter' ? 'border-primary' : ''}`}>
+            <div className="card group hover:border-primary/50 transition-all duration-300">
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-text-tertiary mb-2">STARTER</h3>
                 <div className="flex items-baseline gap-2 mb-1">
@@ -742,7 +741,7 @@ export default function LandingPage() {
             </div>
 
             {/* Basic Plan */}
-            <div className={`card group hover:border-primary/50 transition-all duration-300 ${selectedPlan === 'basic' ? 'border-primary' : ''}`}>
+            <div className="card group hover:border-primary/50 transition-all duration-300">
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-text-tertiary mb-2">BASIC</h3>
                 <div className="flex items-baseline gap-2 mb-1">
@@ -794,7 +793,7 @@ export default function LandingPage() {
             </div>
 
             {/* Pro Plan - Recommended */}
-            <div className={`card border-primary/50 group hover:border-primary transition-all duration-300 relative ${selectedPlan === 'pro' ? 'border-primary' : ''}`}>
+            <div className="card border-primary/50 group hover:border-primary transition-all duration-300 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-primary text-dark text-xs font-bold px-4 py-1 rounded-full">推荐</span>
               </div>
@@ -856,7 +855,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ultimate Plan */}
-            <div className={`card group hover:border-primary/50 transition-all duration-300 ${selectedPlan === 'ultimate' ? 'border-primary' : ''}`}>
+            <div className="card group hover:border-primary/50 transition-all duration-300">
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-text-tertiary mb-2">ULTIMATE</h3>
                 <div className="flex items-baseline gap-2 mb-1">
