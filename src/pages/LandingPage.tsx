@@ -9,6 +9,7 @@ export default function LandingPage() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [user, setUser] = useState<UserInfo | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null) // 选中的套餐
   const [showBetaModal, setShowBetaModal] = useState(false) // 内测弹窗状态
   const [playingVideos, setPlayingVideos] = useState<Set<number>>(new Set()) // 正在播放的视频
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map()) // 视频元素引用
