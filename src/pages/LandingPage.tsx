@@ -9,8 +9,7 @@ export default function LandingPage() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [user, setUser] = useState<UserInfo | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null) // 选中的套餐
-  const [showBetaModal, setShowBetaModal] = useState(false) // 内测弹窗
+  const [showBetaModal, setShowBetaModal] = useState(false) // 内测弹窗状态
   const [playingVideos, setPlayingVideos] = useState<Set<number>>(new Set()) // 正在播放的视频
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map()) // 视频元素引用
 
@@ -1048,6 +1047,97 @@ export default function LandingPage() {
           opacity: 1;
         }
       `}</style>
+
+      {/* 内测弹窗 */}
+      {showBetaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* 背景遮罩 */}
+          <div 
+            className="absolute inset-0 bg-dark/80 backdrop-blur-sm"
+            onClick={() => setShowBetaModal(false)}
+          ></div>
+
+          {/* 弹窗内容 */}
+          <div className="relative w-full max-w-lg">
+            <div className="card bg-dark-card border-primary/30 p-10">
+              {/* 关闭按钮 */}
+              <button
+                onClick={() => setShowBetaModal(false)}
+                className="absolute top-4 right-4 text-text-tertiary hover:text-text-primary transition-base"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Logo 和装饰 */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
+                    <span className="text-dark font-bold text-3xl">F</span>
+                  </div>
+                  {/* 发光效果 */}
+                  <div className="absolute inset-0 bg-primary/20 rounded-lg blur-xl"></div>
+                </div>
+              </div>
+
+              {/* 标题 - 强调免费 */}
+              <h2 className="text-3xl font-bold text-center mb-3">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-400 to-primary">
+                  🎉 内测阶段 · 完全免费
+                </span>
+              </h2>
+              
+              <p className="text-text-secondary text-center text-lg mb-8 leading-relaxed">
+                感谢您的关注！Formy 目前处于内测阶段<br />
+                所有功能<span className="text-primary font-semibold text-xl mx-1">完全免费</span>使用
+              </p>
+
+              {/* 强调区域 */}
+              <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/30 rounded-lg p-6 mb-8">
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-2 text-xl font-semibold text-primary">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                    <span>免费领取内测码</span>
+                  </div>
+                  <p className="text-text-secondary text-sm">
+                    联系工作人员即可获得内测资格<br />
+                    享受所有高级功能，无任何限制
+                  </p>
+                </div>
+              </div>
+
+              {/* 联系方式 */}
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center justify-center gap-3 p-4 bg-dark rounded-lg border border-dark-border">
+                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-text-primary font-medium">联系邮箱：</span>
+                  <span className="text-primary">wuyebei3206@gmail.com</span>
+                </div>
+              </div>
+
+              {/* 关闭按钮 */}
+              <button
+                onClick={() => setShowBetaModal(false)}
+                className="w-full btn-primary py-3 text-lg"
+              >
+                我知道了
+              </button>
+
+              {/* 提示信息 */}
+              <div className="mt-6 pt-4 border-t border-dark-border">
+                <p className="text-text-tertiary text-xs text-center">
+                  💡 内测期间所有功能免费，正式上线后内测用户将获得专属优惠
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 登录弹窗 */}
       <LoginModal
