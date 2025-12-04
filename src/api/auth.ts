@@ -81,14 +81,12 @@ export async function loginWithCode(email: string, code: string): Promise<LoginR
 }
 
 /**
- * 设置密码
- * @param email - 邮箱地址
- * @param code - 6位验证码（用于验证身份）
+ * 设置密码（需要登录，使用 token 认证）
  * @param password - 密码
  * @returns 设置结果
  */
-export async function setPassword(email: string, code: string, password: string): Promise<{ success: boolean; message: string }> {
-  const response = await apiClient.post('/auth/set-password', { email, code, password })
+export async function setPassword(password: string): Promise<{ success: boolean; message: string }> {
+  const response = await apiClient.post('/auth/set-password', { password })
   return response.data
 }
 

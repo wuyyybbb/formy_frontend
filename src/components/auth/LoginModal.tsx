@@ -173,7 +173,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setLoading(true)
 
     try {
-      await setPassword(email, code, password)
+      await setPassword(password)
       console.log('✅ 密码设置成功')
       
       // 关闭弹窗
