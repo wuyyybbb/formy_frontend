@@ -27,7 +27,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [error, setError] = useState('')
-  const [showSetPassword, setShowSetPassword] = useState(false) // 是否显示设置密码提示
 
   // 倒计时逻辑
   useEffect(() => {
@@ -47,7 +46,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setLoginMode('code')
     setError('')
     setCountdown(0)
-    setShowSetPassword(false)
   }
 
   // 关闭弹窗
@@ -120,8 +118,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       // 注意：这里假设后端返回用户信息中包含 has_password 字段
       // 如果没有，可以直接跳过此步骤
       if (!(result.user as any).has_password) {
-        // 显示设置密码提示
-        setShowSetPassword(true)
+        // 显示设置密码界面
         setStep('set-password')
       } else {
         // 关闭弹窗
