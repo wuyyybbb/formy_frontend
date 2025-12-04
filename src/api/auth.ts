@@ -81,6 +81,29 @@ export async function loginWithCode(email: string, code: string): Promise<LoginR
 }
 
 /**
+ * 设置密码
+ * @param email - 邮箱地址
+ * @param code - 6位验证码（用于验证身份）
+ * @param password - 密码
+ * @returns 设置结果
+ */
+export async function setPassword(email: string, code: string, password: string): Promise<{ success: boolean; message: string }> {
+  const response = await apiClient.post('/auth/set-password', { email, code, password })
+  return response.data
+}
+
+/**
+ * 使用密码登录
+ * @param email - 邮箱地址
+ * @param password - 密码
+ * @returns 登录结果（包含 token 和用户信息）
+ */
+export async function loginWithPassword(email: string, password: string): Promise<LoginResponse> {
+  const response = await apiClient.post<LoginResponse>('/auth/login-password', { email, password })
+  return response.data
+}
+
+/**
  * 获取当前用户信息
  * @returns 用户信息
  */

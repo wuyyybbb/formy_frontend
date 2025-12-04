@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { sendVerificationCode, loginWithCode, saveAuthInfo } from '../../api/auth'
+import { sendVerificationCode, loginWithCode, setPassword, loginWithPassword, saveAuthInfo } from '../../api/auth'
 
 interface LoginModalProps {
   isOpen: boolean
@@ -10,6 +10,9 @@ interface LoginModalProps {
 // 📧 邮箱记忆功能 - localStorage key
 const REMEMBERED_EMAIL_KEY = 'formy_remembered_email'
 
+type LoginMode = 'code' | 'password' // 验证码登录 or 密码登录
+type Step = 'email' | 'code' | 'set-password' | 'password'
+
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   // 从 localStorage 读取上次使用的邮箱
   const [email, setEmail] = useState(() => {
@@ -17,10 +20,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     return remembered || ''
   })
   const [code, setCode] = useState('')
-  const [step, setStep] = useState<'email' | 'code'>('email')
+  const [password, setPasswordValue] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [loginMode, setLoginMode] = useState<LoginMode>('code') // 默认验证码登录
+  const [step, setStep] = useState<Step>('email')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [error, setError] = useState('')
+  const [showSetPassword, setShowSetPassword] = useState(false) // 是否显示设置密码提示
 
   // 倒计时逻辑
   useEffect(() => {
@@ -34,9 +41,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const resetState = () => {
     setEmail('')
     setCode('')
+    setPasswordValue('')
+    setConfirmPassword('')
     setStep('email')
+    setLoginMode('code')
     setError('')
     setCountdown(0)
+    setShowSetPassword(false)
   }
 
   // 关闭弹窗
@@ -88,8 +99,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     }
   }
 
-  // 登录
-  const handleLogin = async () => {
+  // 验证码登录
+  const handleLoginWithCode = async () => {
     if (!code || code.length !== 6) {
       setError('请输入6位验证码')
       return
@@ -100,7 +111,82 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
     try {
       const result = await loginWithCode(email, code)
-      console.log('登录成功:', result)
+      console.log('验证码登录成功:', result)
+      
+      // 保存认证信息
+      saveAuthInfo(result.access_token, result.user)
+      
+      // 检查用户是否设置了密码，如果没有则提示设置
+      // 注意：这里假设后端返回用户信息中包含 has_password 字段
+      // 如果没有，可以直接跳过此步骤
+      if (!(result.user as any).has_password) {
+        // 显示设置密码提示
+        setShowSetPassword(true)
+        setStep('set-password')
+      } else {
+        // 关闭弹窗
+        handleClose()
+        // 回调
+        onLoginSuccess?.()
+      }
+    } catch (err) {
+      console.error('登录失败:', err)
+      setError(err instanceof Error ? err.message : '登录失败，请检查验证码')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 设置密码
+  const handleSetPassword = async () => {
+    if (!password || password.length < 6) {
+      setError('密码至少6位')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('两次输入的密码不一致')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      await setPassword(email, code, password)
+      console.log('✅ 密码设置成功')
+      
+      // 关闭弹窗
+      handleClose()
+      // 回调
+      onLoginSuccess?.()
+    } catch (err: any) {
+      console.error('❌ 设置密码失败:', err)
+      setError(err.response?.data?.detail || '设置密码失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 跳过设置密码
+  const handleSkipSetPassword = () => {
+    handleClose()
+    onLoginSuccess?.()
+  }
+
+  // 密码登录
+  const handleLoginWithPassword = async () => {
+    if (!password || password.length < 6) {
+      setError('请输入密码')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const result = await loginWithPassword(email, password)
+      console.log('密码登录成功:', result)
       
       // 保存认证信息
       saveAuthInfo(result.access_token, result.user)
@@ -110,19 +196,40 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       
       // 回调
       onLoginSuccess?.()
-    } catch (err) {
-      console.error('登录失败:', err)
-      setError(err instanceof Error ? err.message : '登录失败，请检查验证码')
+    } catch (err: any) {
+      console.error('密码登录失败:', err)
+      setError(err.response?.data?.detail || '邮箱或密码错误')
     } finally {
       setLoading(false)
     }
   }
 
+  // 切换登录模式
+  const handleSwitchMode = (mode: LoginMode) => {
+    setLoginMode(mode)
+    setError('')
+    setPasswordValue('')
+    setConfirmPassword('')
+    setCode('')
+    
+    if (mode === 'code') {
+      setStep('email')
+    } else {
+      setStep('password')
+    }
+  }
+
   // 返回上一步
   const handleBack = () => {
-    setStep('email')
-    setCode('')
-    setError('')
+    if (step === 'code' || step === 'password') {
+      setStep('email')
+      setCode('')
+      setPasswordValue('')
+      setError('')
+    } else if (step === 'set-password') {
+      // 从设置密码返回，直接关闭并调用成功回调
+      handleSkipSetPassword()
+    }
   }
 
   if (!isOpen) return null
@@ -157,13 +264,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
           {/* 标题 */}
           <h2 className="title-h2 text-center mb-2">
-            {step === 'email' ? '登录 Formy' : '输入验证码'}
+            {step === 'email' && '登录 Formy'}
+            {step === 'code' && '输入验证码'}
+            {step === 'set-password' && '设置密码'}
+            {step === 'password' && '密码登录'}
           </h2>
           <p className="text-text-secondary text-center mb-8">
-            {step === 'email' 
-              ? '使用邮箱验证码登录'
-              : `验证码已发送到 ${email}`
-            }
+            {step === 'email' && `使用邮箱${loginMode === 'code' ? '验证码' : '密码'}登录`}
+            {step === 'code' && `验证码已发送到 ${email}`}
+            {step === 'set-password' && '为您的账号设置密码，下次可快速登录'}
+            {step === 'password' && '输入您的密码'}
           </p>
 
           {/* 错误提示 */}
@@ -176,13 +286,37 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           {/* 输入邮箱 */}
           {step === 'email' && (
             <div className="space-y-6">
+              {/* 登录模式切换 */}
+              <div className="flex gap-2 p-1 bg-dark-border/30 rounded-sm">
+                <button
+                  onClick={() => handleSwitchMode('code')}
+                  className={`flex-1 py-2 px-4 rounded-sm text-sm font-medium transition-base ${
+                    loginMode === 'code'
+                      ? 'bg-primary text-dark'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  验证码登录
+                </button>
+                <button
+                  onClick={() => handleSwitchMode('password')}
+                  className={`flex-1 py-2 px-4 rounded-sm text-sm font-medium transition-base ${
+                    loginMode === 'password'
+                      ? 'bg-primary text-dark'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  密码登录
+                </button>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">邮箱地址</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendCode()}
+                  onKeyPress={(e) => e.key === 'Enter' && (loginMode === 'code' ? handleSendCode() : setStep('password'))}
                   placeholder="your@email.com"
                   className="input w-full"
                   disabled={loading}
@@ -190,11 +324,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               </div>
 
               <button
-                onClick={handleSendCode}
+                onClick={() => loginMode === 'code' ? handleSendCode() : setStep('password')}
                 disabled={loading || !email}
                 className="btn-primary w-full py-3"
               >
-                {loading ? '发送中...' : '发送验证码'}
+                {loading ? '处理中...' : loginMode === 'code' ? '发送验证码' : '下一步'}
               </button>
             </div>
           )}
@@ -224,7 +358,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                       }, 300)
                     }
                   }}
-                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLoginWithCode()}
                   onPaste={(e) => {
                     // 支持粘贴验证码
                     e.preventDefault()
@@ -252,7 +386,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
               <button
                 id="login-btn"
-                onClick={handleLogin}
+                onClick={handleLoginWithCode}
                 disabled={loading || code.length !== 6}
                 className="btn-primary w-full py-3"
               >
@@ -285,6 +419,109 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             </div>
           )}
 
+          {/* 设置密码 */}
+          {step === 'set-password' && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">设置密码</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPasswordValue(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSetPassword()}
+                  placeholder="至少6位字符"
+                  className="input w-full"
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">确认密码</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSetPassword()}
+                  placeholder="再次输入密码"
+                  className="input w-full"
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={handleSetPassword}
+                  disabled={loading || !password || password.length < 6}
+                  className="btn-primary w-full py-3"
+                >
+                  {loading ? '设置中...' : '设置密码'}
+                </button>
+
+                <button
+                  onClick={handleSkipSetPassword}
+                  disabled={loading}
+                  className="btn-secondary w-full py-3"
+                >
+                  暂时跳过
+                </button>
+              </div>
+
+              <p className="text-xs text-text-tertiary text-center">
+                💡 设置密码后，下次可使用邮箱+密码快速登录
+              </p>
+            </div>
+          )}
+
+          {/* 密码登录 */}
+          {step === 'password' && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">密码</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPasswordValue(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLoginWithPassword()}
+                  placeholder="请输入密码"
+                  className="input w-full"
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+
+              <button
+                onClick={handleLoginWithPassword}
+                disabled={loading || !password}
+                className="btn-primary w-full py-3"
+              >
+                {loading ? '登录中...' : '登录'}
+              </button>
+
+              <div className="flex justify-between items-center text-sm">
+                <button
+                  onClick={handleBack}
+                  className="text-text-secondary hover:text-primary transition-base"
+                  disabled={loading}
+                >
+                  ← 返回
+                </button>
+
+                <button
+                  onClick={() => {
+                    setLoginMode('code')
+                    setStep('email')
+                    setPasswordValue('')
+                  }}
+                  className="text-primary hover:text-primary/80 transition-base"
+                  disabled={loading}
+                >
+                  使用验证码登录
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 提示信息 */}
           <div className="mt-8 pt-6 border-t border-dark-border">
             <p className="text-text-tertiary text-xs text-center">
@@ -299,4 +536,3 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     </div>
   )
 }
-
