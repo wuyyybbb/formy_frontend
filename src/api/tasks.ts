@@ -67,6 +67,7 @@ export interface TaskInfo {
   
   // 输入信息
   source_image: string
+  reference_image?: string  // 参考图片 file_id（换头/换背景/换姿势）
   config: Record<string, any>
   
   // 结果信息

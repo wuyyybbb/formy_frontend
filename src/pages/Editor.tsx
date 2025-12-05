@@ -336,15 +336,50 @@ export default function Editor() {
           key={historyKey}
           currentMode={currentMode}
           onSelectTask={(task) => {
-            // 点击历史任务时，显示其结果
+            // 点击历史任务时，恢复完整的任务状态（输入图片 + 输出结果）
+            console.log('📋 恢复历史任务:', task.task_id)
+            
+            // 1. 恢复输入图片（左侧上传框）
+            if (task.source_image) {
+              // 根据 file_id 构建图片 URL
+              const sourceUrl = getImageUrl(`/source/${task.source_image}`)
+              setSourceImage(sourceUrl)
+              setSourceFileId(task.source_image)
+              console.log('✅ 恢复原始图片:', task.source_image)
+            }
+            
+            // 2. 恢复参考图片（如果有）
+            if (task.reference_image) {
+              // 根据模式判断是哪种参考图
+              const referenceUrl = getImageUrl(`/reference/${task.reference_image}`)
+              setReferenceImage(referenceUrl)
+              setReferenceFileId(task.reference_image)
+              console.log('✅ 恢复参考图片:', task.reference_image)
+            }
+            
+            // 3. 恢复输出结果（右侧预览）
             if (task.result?.output_image) {
-              const resultUrl = getImageUrl(task.result.output_image)
+              const resultUrl = getImageUrl(task.result.output_image, true)
               setResultImage(resultUrl)
             }
             if (task.result?.comparison_image) {
-              const comparisonUrl = getImageUrl(task.result.comparison_image)
+              const comparisonUrl = getImageUrl(task.result.comparison_image, true)
               setComparisonImage(comparisonUrl)
             }
+            
+            // 4. 恢复任务状态
+            setCurrentTaskId(task.task_id)
+            setTaskStatus(task.status)
+            setProgress(task.progress)
+            setCurrentStep(task.current_step || null)
+            if (task.error) {
+              setTaskError(task.error)
+            } else {
+              setTaskError(null)
+            }
+            setProcessingTime(task.processing_time)
+            
+            console.log('✅ 历史任务状态已恢复')
           }}
           onRetryTask={(task) => {
             // 重试失败的任务
