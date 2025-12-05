@@ -29,6 +29,38 @@ export default function Editor() {
     }
   }, [modeFromUrl])
   
+  // 🔄 当模式切换时，清空所有状态
+  useEffect(() => {
+    console.log('🔄 模式切换，清空所有状态:', currentMode)
+    
+    // 如果正在处理中，先取消当前任务
+    if (isProcessing && currentTaskId) {
+      console.log('⚠️  检测到任务正在处理中，切换模式将停止轮询')
+      // 轮询会自动停止（因为 currentTaskId 会被清空）
+    }
+    
+    // 1. 清空上传的图片
+    setSourceImage(null)
+    setSourceFileId(null)
+    setReferenceImage(null)
+    setReferenceFileId(null)
+    
+    // 2. 清空生成结果
+    setResultImage(null)
+    setComparisonImage(null)
+    
+    // 3. 重置任务状态
+    setCurrentTaskId(null)
+    setIsProcessing(false)
+    setTaskStatus(null)
+    setProgress(0)
+    setCurrentStep(null)
+    setTaskError(null)
+    setProcessingTime(undefined)
+    
+    console.log('✅ 状态已清空，准备开始新模式')
+  }, [currentMode])
+  
   // 图片 URL（用于显示）
   const [sourceImage, setSourceImage] = useState<string | null>(null)
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
