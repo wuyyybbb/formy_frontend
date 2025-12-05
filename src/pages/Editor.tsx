@@ -174,8 +174,9 @@ export default function Editor() {
     }
     
     // 2. 根据模式验证是否需要参考图
-    if ((currentMode === 'HEAD_SWAP' || currentMode === 'POSE_CHANGE') && !referenceFileId) {
-      alert('此模式需要上传参考图片')
+    if ((currentMode === 'HEAD_SWAP' || currentMode === 'POSE_CHANGE' || currentMode === 'BACKGROUND_CHANGE') && !referenceFileId) {
+      const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? '背景图片' : '参考图片'
+      alert(`此模式需要上传${imageTypeName}`)
       return
     }
     
