@@ -275,17 +275,21 @@ export default function Editor() {
       <header className="border-b border-dark-border backdrop-blur-sm flex-shrink-0 z-10">
         <div className="px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-base">
+            {/* 左侧：Logo */}
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-base flex-shrink-0">
               <div className="w-8 h-8 bg-primary rounded-sm"></div>
               <span className="text-xl font-bold">Formy</span>
             </Link>
             
-            {/* Desktop Mode Tabs */}
-            <div className="hidden md:block">
+            {/* 中间：Mode Tabs */}
+            <div className="hidden md:flex flex-1 justify-center">
               <ModeTabs currentMode={currentMode} onModeChange={setCurrentMode} />
             </div>
 
-            <UserMenu />
+            {/* 右侧：User Menu */}
+            <div className="flex-shrink-0">
+              <UserMenu />
+            </div>
           </div>
 
           {/* Mobile Mode Tabs */}
