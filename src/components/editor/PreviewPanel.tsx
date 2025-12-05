@@ -6,6 +6,7 @@ import ImageCompareSlider from '../ImageCompareSlider'
 interface PreviewPanelProps {
   resultImage: string | null
   comparisonImage?: string | null
+  sourceImage?: string | null  // 添加原图，用于对比
   isProcessing: boolean
   progress?: number
   currentStep?: string | null
@@ -17,6 +18,7 @@ interface PreviewPanelProps {
 export default function PreviewPanel({ 
   resultImage, 
   comparisonImage = null,
+  sourceImage = null,  // 接收原图
   isProcessing,
   progress = 0,
   currentStep = null,
@@ -123,14 +125,14 @@ export default function PreviewPanel({
                   </svg>
                   <p className="text-sm">等待生成结果</p>
                 </div>
-              ) : (resultImage && comparisonImage) ? (
-                /* 使用拖动对比组件 */
+              ) : (resultImage && (comparisonImage || sourceImage)) ? (
+                /* 使用拖动对比组件 - 优先使用 comparisonImage，否则使用 sourceImage */
                 <div className="w-full h-full">
                   <ImageCompareSlider
-                    beforeImage={resultImage}
-                    afterImage={comparisonImage}
-                    beforeLabel="处理后"
-                    afterLabel="原图"
+                    beforeImage={sourceImage || comparisonImage!}
+                    afterImage={resultImage}
+                    beforeLabel="原图"
+                    afterLabel="处理后"
                   />
                 </div>
               ) : (
