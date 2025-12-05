@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { TaskError } from '../../api/tasks'
 import { classifyError, getErrorIcon, getErrorColorScheme } from '../../utils/errorClassifier'
+import ImageCompareSlider from '../ImageCompareSlider'
 
 interface PreviewPanelProps {
   resultImage: string | null
@@ -111,7 +112,7 @@ export default function PreviewPanel({
             </div>
           </div>
 
-          {/* Comparison Image (output:image_comparer:2) */}
+          {/* Comparison Slider (output:image_comparer:2) - 使用拖动对比 */}
           <div>
             <div className="text-sm font-medium mb-3 text-primary">对比展示</div>
             <div className="aspect-[3/4] bg-dark-card rounded-md border border-dark-border overflow-hidden flex items-center justify-center">
@@ -122,14 +123,16 @@ export default function PreviewPanel({
                   </svg>
                   <p className="text-sm">等待生成结果</p>
                 </div>
-              ) : comparisonImage ? (
-                /* 对比图片 - 使用 object-contain 保证完整显示 */
-                <img 
-                  src={comparisonImage} 
-                  alt="对比展示" 
-                  className="max-w-full max-h-full object-contain"
-                  style={{ width: 'auto', height: 'auto' }}
-                />
+              ) : (resultImage && comparisonImage) ? (
+                /* 使用拖动对比组件 */
+                <div className="w-full h-full">
+                  <ImageCompareSlider
+                    beforeImage={resultImage}
+                    afterImage={comparisonImage}
+                    beforeLabel="处理后"
+                    afterLabel="原图"
+                  />
+                </div>
               ) : (
                 <div className="text-center text-text-tertiary">
                   <svg className="w-16 h-16 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
