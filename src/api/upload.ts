@@ -52,7 +52,7 @@ export async function uploadImage(
  * @param url - 相对 URL 或完整 URL
  * @returns 完整的图片 URL
  */
-export function getImageUrl(url: string): string {
+export function getImageUrl(url: string, bustCache = false): string {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url
   }
@@ -62,7 +62,14 @@ export function getImageUrl(url: string): string {
   
   // 移除 /api/v1 后缀，因为静态文件挂载在根路径
   const apiBase = baseURL.replace(/\/api\/v1$/, '')
+  const fullUrl = `${apiBase}${url}`
   
-  return `${apiBase}${url}`
+  // 添加缓存破坏参数，强制浏览器重新加载图片
+  if (bustCache) {
+    const separator = fullUrl.includes('?') ? '&' : '?'
+    return `${fullUrl}${separator}t=${Date.now()}`
+  }
+  
+  return fullUrl
 }
 

@@ -99,14 +99,14 @@ export default function Editor() {
       
       // 同时设置处理结果和对比图片
       if (taskInfo.result?.output_image) {
-        const resultUrl = getImageUrl(taskInfo.result.output_image)
+        const resultUrl = getImageUrl(taskInfo.result.output_image, true) // 强制刷新缓存
         setResultImage(resultUrl)
       } else {
         setResultImage(null)
       }
       
       if (taskInfo.result?.comparison_image) {
-        const comparisonUrl = getImageUrl(taskInfo.result.comparison_image)
+        const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true) // 强制刷新缓存
         setComparisonImage(comparisonUrl)
       } else {
         setComparisonImage(null)
