@@ -80,11 +80,11 @@ export default function ImageCompareSlider({
       style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
     >
       {/* After Image (Full) - 下层 */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 flex items-center justify-center bg-dark-card">
         <img 
           src={afterImage} 
           alt={afterLabel}
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
           draggable={false}
         />
         {/* After Label - 右上角，深灰色背景 */}
@@ -98,7 +98,7 @@ export default function ImageCompareSlider({
 
       {/* Before Image (Clipped) - 上层 */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 flex items-center justify-center"
         style={{
           clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`
         }}
@@ -106,7 +106,7 @@ export default function ImageCompareSlider({
         <img 
           src={beforeImage} 
           alt={beforeLabel}
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
           draggable={false}
         />
         {/* Before Label - 左上角，绿色背景 */}
