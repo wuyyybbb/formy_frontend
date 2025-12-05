@@ -283,6 +283,7 @@ export default function Editor() {
           <PreviewPanel
             resultImage={resultImage}
             comparisonImage={comparisonImage}
+            sourceImage={sourceImage}
             isProcessing={isProcessing}
             progress={progress}
             currentStep={currentStep}
