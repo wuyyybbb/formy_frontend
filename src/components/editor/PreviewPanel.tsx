@@ -40,6 +40,18 @@ export default function PreviewPanel({
     // 换背景、换姿势：底层显示"原始图片"（sourceImage）
     return sourceImage
   }
+  
+  // 🔍 调试日志
+  console.log('PreviewPanel 对比图调试:', {
+    mode,
+    resultImage: resultImage ? '有' : '无',
+    sourceImage: sourceImage ? '有' : '无',
+    referenceImage: referenceImage ? '有' : '无',
+    comparisonImage: comparisonImage ? '有' : '无',
+    getBeforeImage: getBeforeImage() ? '有' : '无',
+    shouldShowSlider: !!(resultImage && getBeforeImage())
+  })
+  
   const [showDetails, setShowDetails] = useState(false)
   return (
     <div className="h-full p-6 overflow-y-auto">
