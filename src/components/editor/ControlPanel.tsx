@@ -25,15 +25,17 @@ export default function ControlPanel({
       case 'HEAD_SWAP':
         return {
           title: 'AI 换头',
-          description: '上传原图和参考头像，AI 将自然替换人物头部',
+          description: '上传脸部特写和被换脸原图，AI 将自然替换人物头部',
           needsReference: true,
-          referenceLabel: '参考头像',
+          sourceLabel: '脸部特写',
+          referenceLabel: '被换脸原图',
         }
       case 'BACKGROUND_CHANGE':
         return {
           title: 'AI 换背景',
           description: '上传原图，选择或上传新背景，AI 将完成背景替换',
           needsReference: true,
+          sourceLabel: '原始图片',
           referenceLabel: '背景图片',
         }
       case 'POSE_CHANGE':
@@ -41,6 +43,7 @@ export default function ControlPanel({
           title: 'AI 换姿势',
           description: '上传原图和目标姿势，AI 将迁移人物姿态',
           needsReference: true,
+          sourceLabel: '原始图片',
           referenceLabel: '目标姿势',
         }
     }
@@ -59,7 +62,7 @@ export default function ControlPanel({
       {/* Upload Areas */}
       <div className="space-y-4">
         <UploadArea
-          label="原始图片"
+          label={config.sourceLabel}
           image={sourceImage}
           onChange={onSourceImageChange}
           purpose="source"

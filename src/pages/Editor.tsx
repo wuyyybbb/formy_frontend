@@ -284,6 +284,8 @@ export default function Editor() {
             resultImage={resultImage}
             comparisonImage={comparisonImage}
             sourceImage={sourceImage}
+            referenceImage={referenceImage}
+            mode={currentMode}
             isProcessing={isProcessing}
             progress={progress}
             currentStep={currentStep}

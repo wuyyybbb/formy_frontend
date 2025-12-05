@@ -6,7 +6,9 @@ import ImageCompareSlider from '../ImageCompareSlider'
 interface PreviewPanelProps {
   resultImage: string | null
   comparisonImage?: string | null
-  sourceImage?: string | null  // 添加原图，用于对比
+  sourceImage?: string | null  // 原图
+  referenceImage?: string | null  // 参考图（换头时的"被换脸原图"）
+  mode?: string  // 编辑模式
   isProcessing: boolean
   progress?: number
   currentStep?: string | null
@@ -18,7 +20,9 @@ interface PreviewPanelProps {
 export default function PreviewPanel({ 
   resultImage, 
   comparisonImage = null,
-  sourceImage = null,  // 接收原图
+  sourceImage = null,
+  referenceImage = null,
+  mode = null,
   isProcessing,
   progress = 0,
   currentStep = null,
@@ -26,6 +30,16 @@ export default function PreviewPanel({
   error = null,
   processingTime = undefined
 }: PreviewPanelProps) {
+  
+  // 根据模式选择底层图片
+  const getBeforeImage = () => {
+    if (mode === 'HEAD_SWAP') {
+      // 换头：底层显示"被换脸原图"（referenceImage）
+      return referenceImage || sourceImage
+    }
+    // 换背景、换姿势：底层显示"原始图片"（sourceImage）
+    return sourceImage
+  }
   const [showDetails, setShowDetails] = useState(false)
   return (
     <div className="h-full p-6 overflow-y-auto">
@@ -125,13 +139,13 @@ export default function PreviewPanel({
                   </svg>
                   <p className="text-sm">等待生成结果</p>
                 </div>
-              ) : (resultImage && (comparisonImage || sourceImage)) ? (
-                /* 使用拖动对比组件 - 优先使用 comparisonImage，否则使用 sourceImage */
+              ) : (resultImage && getBeforeImage()) ? (
+                /* 使用拖动对比组件 - 根据模式选择底层图片 */
                 <div className="w-full h-full">
                   <ImageCompareSlider
-                    beforeImage={sourceImage || comparisonImage!}
+                    beforeImage={getBeforeImage()!}
                     afterImage={resultImage}
-                    beforeLabel="原图"
+                    beforeLabel={mode === 'HEAD_SWAP' ? '被换脸原图' : '原图'}
                     afterLabel="处理后"
                   />
                 </div>
