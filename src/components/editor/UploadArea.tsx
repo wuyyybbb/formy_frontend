@@ -11,11 +11,15 @@ interface UploadAreaProps {
   image: string | null
   onChange: (result: UploadResult | null) => void
   purpose?: 'source' | 'reference'
+  imageUrl?: string | null  // 受控模式：外部传入的图片 URL
 }
 
-export default function UploadArea({ label, image, onChange, purpose = 'source' }: UploadAreaProps) {
+export default function UploadArea({ label, image, onChange, purpose = 'source', imageUrl }: UploadAreaProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  
+  // 受控模式：优先使用外部传入的 imageUrl
+  const displayImage = imageUrl !== undefined ? imageUrl : image
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -60,12 +64,12 @@ export default function UploadArea({ label, image, onChange, purpose = 'source' 
         </div>
       )}
       
-      {image ? (
+      {displayImage ? (
         <div className="relative group">
           {/* 使用更高的容器，并确保图片完整显示且居中 */}
           <div className="w-full aspect-[3/4] min-h-[240px] bg-dark-card rounded-sm border border-dark-border overflow-hidden flex items-center justify-center p-2">
             <img
-              src={image}
+              src={displayImage}
               alt={label}
               className="max-w-full max-h-full object-contain"
               style={{ width: 'auto', height: 'auto' }}

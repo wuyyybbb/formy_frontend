@@ -311,6 +311,8 @@ export default function Editor() {
             onReferenceImageChange={handleReferenceUpload}
             onGenerate={handleGenerate}
             isProcessing={isProcessing}
+            sourceImageUrl={sourceImage}
+            referenceImageUrl={referenceImage}
           />
         </div>
 
@@ -340,21 +342,37 @@ export default function Editor() {
             console.log('📋 恢复历史任务:', task.task_id)
             
             // 1. 恢复输入图片（左侧上传框）
-            if (task.source_image) {
-              // 根据 file_id 构建图片 URL
-              const sourceUrl = getImageUrl(`/source/${task.source_image}`)
-              setSourceImage(sourceUrl)
-              setSourceFileId(task.source_image)
-              console.log('✅ 恢复原始图片:', task.source_image)
+            // 优先使用 face_image_url，如果没有则从 source_image 构建
+            let faceImageUrl: string | null = null
+            if ((task as any).face_image_url) {
+              faceImageUrl = (task as any).face_image_url
+            } else if (task.source_image) {
+              faceImageUrl = getImageUrl(`/uploads/${task.source_image}`)
+            }
+            
+            if (faceImageUrl) {
+              setSourceImage(faceImageUrl)
+              if (task.source_image) {
+                setSourceFileId(task.source_image)
+              }
+              console.log('✅ 恢复原始图片:', faceImageUrl)
             }
             
             // 2. 恢复参考图片（如果有）
-            if (task.reference_image) {
-              // 根据模式判断是哪种参考图
-              const referenceUrl = getImageUrl(`/reference/${task.reference_image}`)
-              setReferenceImage(referenceUrl)
-              setReferenceFileId(task.reference_image)
-              console.log('✅ 恢复参考图片:', task.reference_image)
+            // 优先使用 target_image_url，如果没有则从 reference_image 构建
+            let targetImageUrl: string | null = null
+            if ((task as any).target_image_url) {
+              targetImageUrl = (task as any).target_image_url
+            } else if (task.reference_image) {
+              targetImageUrl = getImageUrl(`/uploads/${task.reference_image}`)
+            }
+            
+            if (targetImageUrl) {
+              setReferenceImage(targetImageUrl)
+              if (task.reference_image) {
+                setReferenceFileId(task.reference_image)
+              }
+              console.log('✅ 恢复参考图片:', targetImageUrl)
             }
             
             // 3. 恢复输出结果（右侧预览）

@@ -9,6 +9,8 @@ interface ControlPanelProps {
   onReferenceImageChange: (result: UploadResult | null) => void
   onGenerate: () => void
   isProcessing: boolean
+  sourceImageUrl?: string | null  // 受控模式：外部传入的原始图片 URL
+  referenceImageUrl?: string | null  // 受控模式：外部传入的参考图片 URL
 }
 
 export default function ControlPanel({
@@ -19,6 +21,8 @@ export default function ControlPanel({
   onReferenceImageChange,
   onGenerate,
   isProcessing,
+  sourceImageUrl,
+  referenceImageUrl,
 }: ControlPanelProps) {
   const getModeConfig = () => {
     switch (mode) {
@@ -66,6 +70,7 @@ export default function ControlPanel({
           image={sourceImage}
           onChange={onSourceImageChange}
           purpose="source"
+          imageUrl={sourceImageUrl}
         />
 
         {config.needsReference && (
@@ -74,6 +79,7 @@ export default function ControlPanel({
             image={referenceImage}
             onChange={onReferenceImageChange}
             purpose="reference"
+            imageUrl={referenceImageUrl}
           />
         )}
       </div>
