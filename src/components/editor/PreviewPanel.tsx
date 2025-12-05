@@ -8,7 +8,7 @@ interface PreviewPanelProps {
   comparisonImage?: string | null
   sourceImage?: string | null  // 原图
   referenceImage?: string | null  // 参考图（换头时的"被换脸原图"）
-  mode?: string  // 编辑模式
+  mode?: string | null  // 编辑模式
   isProcessing: boolean
   progress?: number
   currentStep?: string | null
