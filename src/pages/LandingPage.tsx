@@ -315,11 +315,11 @@ export default function LandingPage() {
                         >
                           <img
                             src={`/Landing_Page_hero_image/${num}.png`}
-                            alt={`Fashion ${num}`}
+                          alt={`Fashion ${num}`}
                             className="w-full h-full object-cover"
-                          />
-                        </div>
-                        
+                        />
+                      </div>
+                      
                         {/* Hover 效果 */}
                         <div className="absolute inset-0 z-20 bg-primary/0 group-hover:bg-primary/5 transition-all duration-500 pointer-events-none"></div>
                       </div>
@@ -367,11 +367,11 @@ export default function LandingPage() {
                         >
                           <img
                             src={`/Landing_Page_hero_image/${num}.png`}
-                            alt={`Fashion ${num}`}
+                          alt={`Fashion ${num}`}
                             className="w-full h-full object-cover"
-                          />
-                        </div>
-                        
+                        />
+                      </div>
+                      
                         {/* Hover 效果 */}
                         <div className="absolute inset-0 z-20 bg-primary/0 group-hover:bg-primary/5 transition-all duration-500 pointer-events-none"></div>
                       </div>
