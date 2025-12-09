@@ -35,17 +35,17 @@ export const ERROR_MESSAGES: Record<string, string> = {
   IMAGE_DECODE_FAILED: '图片解码失败',
   
   // Pipeline 执行错误
-  PIPELINE_ERROR: '处理流程错误',
-  PIPELINE_TIMEOUT: '处理超时',
+  PIPELINE_ERROR: 'AI 服务暂时繁忙，请稍后重试',
+  PIPELINE_TIMEOUT: 'AI 处理超时，请重试或降低图片质量',
   PIPELINE_INIT_FAILED: '处理流程初始化失败',
   PIPELINE_CONFIG_ERROR: '处理流程配置错误',
   
   // Engine 错误
-  ENGINE_NOT_AVAILABLE: 'AI 引擎不可用',
-  ENGINE_CONNECTION_FAILED: '无法连接到 AI 引擎',
-  ENGINE_TIMEOUT: 'AI 引擎响应超时',
-  ENGINE_RESPONSE_ERROR: 'AI 引擎返回错误',
-  ENGINE_AUTH_FAILED: 'AI 引擎认证失败',
+  ENGINE_NOT_AVAILABLE: 'AI 引擎暂时不可用，请稍后重试',
+  ENGINE_CONNECTION_FAILED: 'AI 服务连接失败，请检查网络或稍后重试',
+  ENGINE_TIMEOUT: 'AI 服务响应超时，当前使用人数较多，请稍后重试',
+  ENGINE_RESPONSE_ERROR: 'AI 服务返回错误，请重试',
+  ENGINE_AUTH_FAILED: 'AI 服务认证失败',
   
   // ComfyUI 特定错误
   COMFYUI_NOT_AVAILABLE: 'AI 引擎暂时不可用',
