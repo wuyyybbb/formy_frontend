@@ -23,7 +23,8 @@ export default function MobilePreview({
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center px-4">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-sm text-text-secondary mb-2 font-medium">🎨 AI 创作中...</p>
+                <p className="text-sm text-text-secondary mb-1 font-medium">🎨 AI 创作中...</p>
+                <p className="text-xs text-text-tertiary mb-2">请耐心等待，预计 2-3 分钟</p>
                 
                 {/* 进度条 */}
                 {progress > 0 && (

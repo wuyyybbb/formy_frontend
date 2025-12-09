@@ -90,6 +90,7 @@ export default function PreviewPanel({
                   <div className="text-center px-4">
                     <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-text-secondary mb-2 font-medium">🎨 AI 创作中...</p>
+                    <p className="text-xs text-text-tertiary mb-3">当前使用人数较多，预计需要 2-3 分钟</p>
                     
                     {/* 进度条 */}
                     {progress > 0 && (
@@ -181,11 +182,11 @@ export default function PreviewPanel({
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse mt-2 mr-3 flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium mb-1 flex items-center gap-2">
-                  <span>AI Processing</span>
+                  <span>AI 处理中</span>
                   {progress > 0 && <span className="text-sm text-primary">({progress}%)</span>}
                 </p>
                 <p className="text-sm text-text-secondary">
-                  {currentStep || 'AI is analyzing and processing your image...'}
+                  {currentStep || '当前使用人数较多，请耐心等待，预计 2-3 分钟完成'}
                 </p>
               </div>
             </div>
