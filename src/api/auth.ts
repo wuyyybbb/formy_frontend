@@ -121,8 +121,7 @@ const USER_KEY = 'formy_user_info'
 export function saveAuthInfo(token: string, user: UserInfo): void {
   localStorage.setItem(TOKEN_KEY, token)
   localStorage.setItem(USER_KEY, JSON.stringify(user))
-  
-  // 设置 axios 默认 header
+  // 后端把 refresh_token 写入 HttpOnly cookie，前端不可访问也无需保存
   apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
@@ -132,6 +131,8 @@ export function saveAuthInfo(token: string, user: UserInfo): void {
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
 }
+
+// refresh token is stored in HttpOnly cookie and not accessible to JS
 
 /**
  * 获取保存的用户信息
@@ -153,6 +154,7 @@ export function getUserInfo(): UserInfo | null {
 export function clearAuthInfo(): void {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
   delete apiClient.defaults.headers.common['Authorization']
 }
 

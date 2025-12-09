@@ -115,7 +115,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       const result = await loginWithCode(email, code)
       console.log('验证码登录成功:', result)
       
-      // 保存认证信息
+      // 保存认证信息（access_token 与用户信息）；refresh_token 存在于 HttpOnly cookie
       saveAuthInfo(result.access_token, result.user)
       
       // 检查用户是否设置了密码，如果没有则提示设置
@@ -227,7 +227,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       const result = await loginWithPassword(email, password)
       console.log('密码登录成功:', result)
       
-      // 保存认证信息
+      // 保存认证信息（access_token 与用户信息）；refresh_token 存在于 HttpOnly cookie
       saveAuthInfo(result.access_token, result.user)
       
       // 关闭弹窗

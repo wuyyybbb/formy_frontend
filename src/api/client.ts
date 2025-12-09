@@ -23,6 +23,7 @@ const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: API_BASE_URL,
     timeout: 30000, // 30 秒超时
+    withCredentials: true, // 允许跨域携带 cookie（用于 refresh token cookie 流程）
     headers: {
       'Content-Type': 'application/json',
     },
@@ -50,9 +51,44 @@ const createAxiosInstance = (): AxiosInstance => {
       // 返回完整的 response，由调用方决定是否需要 .data
       return response
     },
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
       // 统一错误处理
       let errorMessage = '请求失败，请稍后重试'
+
+      // 在遇到 401 时尝试使用 refresh token 刷新一次 access token 并重试请求
+      const originalRequest: any = error.config
+      if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true
+        try {
+          // 使用独立 axios 实例、不走拦截器（避免循环），并携带 cookie
+          const refreshClient = axios.create({ baseURL: API_BASE_URL, timeout: 10000, withCredentials: true })
+          const resp = await refreshClient.post('/auth/refresh', {})
+            const data = resp.data as any
+            if (data && data.access_token) {
+              // 更新本地存储（token 与 refresh）并更新 axios 实例 header
+              try {
+                // refresh token is stored in HttpOnly cookie by backend; do not store it in JS
+                localStorage.setItem('formy_auth_token', data.access_token)
+                // 更新 axios 默认 header
+                instance.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`
+                originalRequest.headers['Authorization'] = `Bearer ${data.access_token}`
+              } catch (e) {
+                // ignore
+              }
+
+              return instance.request(originalRequest)
+            }
+        } catch (refreshErr) {
+          // 刷新失败，清理本地登录状态
+          try {
+            localStorage.removeItem('formy_auth_token')
+            localStorage.removeItem('formy_user_info')
+          } catch (e) {}
+          delete instance.defaults.headers.common['Authorization']
+          return Promise.reject(new Error('会话已过期，请重新登录'))
+        }
+        }
+      }
 
       if (error.response) {
         // 服务器返回了错误状态码
