@@ -328,67 +328,101 @@ export default function Editor() {
         <HistorySidebar
           key={historyKey}
           currentMode={currentMode}
-          onSelectTask={(task) => {
-            // 点击历史任务时，恢复完整的任务状态（输入图片 + 输出结果）
-            console.log('📋 恢复历史任务:', task.task_id)
+          onSelectTask={async (task) => {
+            // 点击历史任务时，先调用 API 获取完整任务详情
+            console.log('📋 点击历史任务:', task.task_id)
             
-            // 1. 恢复输入图片（左侧上传框）
-            // 优先使用 face_image_url，如果没有则从 source_image 构建
-            let faceImageUrl: string | null = null
-            if ((task as any).face_image_url) {
-              faceImageUrl = (task as any).face_image_url
-            } else if (task.source_image) {
-              faceImageUrl = getImageUrl(`/uploads/${task.source_image}`)
-            }
-            
-            if (faceImageUrl) {
-              setSourceImage(faceImageUrl)
-              if (task.source_image) {
-                setSourceFileId(task.source_image)
+            try {
+              // 调用 GET /api/v1/tasks/{task_id} 获取完整任务详情
+              const { getTask } = await import('../api/tasks')
+              const taskDetail = await getTask(task.task_id)
+              console.log('✅ 获取任务详情:', taskDetail)
+              
+              // 1. 恢复原始图片
+              if (taskDetail.source_image) {
+                // source_image 是 file_id，需要转换为完整 URL
+                const sourceUrl = getImageUrl(`/uploads/source/${taskDetail.source_image}`)
+                setSourceImage(sourceUrl)
+                setSourceFileId(taskDetail.source_image)
+                console.log('✅ 恢复原始图片:', sourceUrl)
+              } else {
+                setSourceImage(null)
+                setSourceFileId(null)
               }
-              console.log('✅ 恢复原始图片:', faceImageUrl)
-            }
-            
-            // 2. 恢复参考图片（如果有）
-            // 优先使用 target_image_url，如果没有则从 reference_image 构建
-            let targetImageUrl: string | null = null
-            if ((task as any).target_image_url) {
-              targetImageUrl = (task as any).target_image_url
-            } else if (task.reference_image) {
-              targetImageUrl = getImageUrl(`/uploads/${task.reference_image}`)
-            }
-            
-            if (targetImageUrl) {
-              setReferenceImage(targetImageUrl)
-              if (task.reference_image) {
-                setReferenceFileId(task.reference_image)
+              
+              // 2. 恢复参考图片（根据不同模式从不同字段获取）
+              let referenceFileId: string | null = null
+              
+              // 优先从 reference_image 字段获取
+              if (taskDetail.reference_image) {
+                referenceFileId = taskDetail.reference_image
               }
-              console.log('✅ 恢复参考图片:', targetImageUrl)
+              // 如果没有，从 config 中根据模式获取
+              else if (taskDetail.config) {
+                if (currentMode === 'BACKGROUND_CHANGE') {
+                  // 换背景：从 background_image 或 bg_image 获取
+                  referenceFileId = taskDetail.config.background_image || taskDetail.config.bg_image
+                } else if (currentMode === 'HEAD_SWAP') {
+                  // 换头：从 target_face_image 或 cloth_image 获取
+                  referenceFileId = taskDetail.config.target_face_image || taskDetail.config.cloth_image || taskDetail.config.reference_image
+                } else if (currentMode === 'POSE_CHANGE') {
+                  // 换姿势：从 pose_image 或 pose_reference 获取
+                  referenceFileId = taskDetail.config.pose_image || taskDetail.config.pose_reference || taskDetail.config.reference_image
+                }
+              }
+              
+              if (referenceFileId) {
+                // 参考图片也是 file_id，需要转换为完整 URL
+                const referenceUrl = getImageUrl(`/uploads/reference/${referenceFileId}`)
+                setReferenceImage(referenceUrl)
+                setReferenceFileId(referenceFileId)
+                console.log('✅ 恢复参考图片:', referenceUrl)
+              } else {
+                setReferenceImage(null)
+                setReferenceFileId(null)
+                console.log('ℹ️  该任务没有参考图片')
+              }
+              
+              // 3. 恢复输出结果（右侧预览）
+              if (taskDetail.result?.output_image) {
+                const resultUrl = getImageUrl(taskDetail.result.output_image, true)
+                setResultImage(resultUrl)
+                console.log('✅ 恢复结果图片:', resultUrl)
+              } else {
+                setResultImage(null)
+              }
+              
+              if (taskDetail.result?.comparison_image) {
+                const comparisonUrl = getImageUrl(taskDetail.result.comparison_image, true)
+                setComparisonImage(comparisonUrl)
+                console.log('✅ 恢复对比图片:', comparisonUrl)
+              } else {
+                setComparisonImage(null)
+              }
+              
+              // 4. 恢复任务状态
+              setCurrentTaskId(taskDetail.task_id)
+              setTaskStatus(taskDetail.status)
+              setProgress(taskDetail.progress)
+              setCurrentStep(taskDetail.current_step || null)
+              if (taskDetail.error) {
+                setTaskError(taskDetail.error)
+              } else {
+                setTaskError(null)
+              }
+              if ((taskDetail as any).processing_time) {
+                setProcessingTime((taskDetail as any).processing_time)
+              }
+              
+              console.log('✅ 历史任务状态已完全恢复')
+            } catch (error) {
+              console.error('❌ 获取任务详情失败:', error)
+              // 即使失败也尽量显示列表中的信息
+              if (task.result?.output_image) {
+                const resultUrl = getImageUrl(task.result.output_image, true)
+                setResultImage(resultUrl)
+              }
             }
-            
-            // 3. 恢复输出结果（右侧预览）
-            if (task.result?.output_image) {
-              const resultUrl = getImageUrl(task.result.output_image, true)
-              setResultImage(resultUrl)
-            }
-            if (task.result?.comparison_image) {
-              const comparisonUrl = getImageUrl(task.result.comparison_image, true)
-              setComparisonImage(comparisonUrl)
-            }
-            
-            // 4. 恢复任务状态
-            setCurrentTaskId(task.task_id)
-            setTaskStatus(task.status)
-            setProgress(task.progress)
-            setCurrentStep(task.current_step || null)
-            if (task.error) {
-              setTaskError(task.error)
-            } else {
-              setTaskError(null)
-            }
-            setProcessingTime(task.processing_time)
-            
-            console.log('✅ 历史任务状态已恢复')
           }}
           onRetryTask={(task) => {
             // 重试失败的任务
