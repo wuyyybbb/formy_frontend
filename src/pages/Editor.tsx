@@ -190,26 +190,44 @@ export default function Editor() {
       return
     }
     
-    // 1. 验证必要的图片已上传
+    // 1. 检查是否有任务正在运行
+    if (isProcessing && currentTaskId) {
+      // 获取当前正在运行的任务模式
+      const modeNames: Record<string, string> = {
+        'HEAD_SWAP': '换头',
+        'BACKGROUND_CHANGE': '换背景',
+        'POSE_CHANGE': '换姿势'
+      }
+      const currentModeName = modeNames[currentMode] || currentMode
+      
+      alert(
+        `⏳ 当前有任务正在运行中...\n\n` +
+        `请等待任务完成后再创建新任务。\n\n` +
+        `💡 提示：您可以在右侧历史记录中查看任务进度。`
+      )
+      return
+    }
+    
+    // 2. 验证必要的图片已上传
     if (!sourceFileId) {
       alert('请先上传原始图片')
       return
     }
     
-    // 2. 根据模式验证是否需要参考图
+    // 3. 根据模式验证是否需要参考图
     if ((currentMode === 'HEAD_SWAP' || currentMode === 'POSE_CHANGE' || currentMode === 'BACKGROUND_CHANGE') && !referenceFileId) {
       const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? '背景图片' : '参考图片'
       alert(`此模式需要上传${imageTypeName}`)
       return
     }
     
-    // 3. 重置状态
+    // 4. 重置状态
     setResultImage(null)
     setTaskError(null)
     setProgress(0)
     setCurrentStep(null)
     
-    // 4. 组装请求体
+    // 5. 组装请求体
     const config: Record<string, any> = {}
     
     // 根据不同模式添加配置
@@ -225,14 +243,14 @@ export default function Editor() {
       setIsProcessing(true)
       setTaskStatus(TaskStatus.PENDING)
       
-      // 5. 发送创建任务请求
+      // 6. 发送创建任务请求
       const taskInfo = await createTask({
         mode: currentMode as ApiEditMode,
         source_image: sourceFileId,
         config
       })
       
-      // 6. 记住 task_id，轮询会自动开始
+      // 7. 记住 task_id，轮询会自动开始
       setCurrentTaskId(taskInfo.task_id)
       setTaskStatus(taskInfo.status)
       

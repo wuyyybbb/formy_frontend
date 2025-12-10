@@ -66,8 +66,8 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
       
       {displayImage ? (
         <div className="relative group">
-          {/* 使用更高的容器，并确保图片完整显示且居中 */}
-          <div className="w-full aspect-[3/4] min-h-[240px] bg-dark-card rounded-sm border border-dark-border overflow-hidden flex items-center justify-center p-2">
+          {/* 固定高度容器，避免图片撑开导致按钮不可见 */}
+          <div className="w-full h-[280px] bg-dark-card rounded-sm border border-dark-border overflow-hidden flex items-center justify-center p-2">
             <img
               src={displayImage}
               alt={label}
@@ -101,7 +101,7 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
       ) : (
         <label className="block cursor-pointer">
           <div className={`
-            border-2 border-dashed border-dark-border rounded-sm p-8 text-center transition-all duration-200
+            h-[280px] border-2 border-dashed border-dark-border rounded-sm p-8 text-center transition-all duration-200 flex flex-col items-center justify-center
             ${isUploading 
               ? 'bg-dark-card opacity-50 cursor-wait' 
               : 'hover:border-primary/50 hover:bg-dark-card'
