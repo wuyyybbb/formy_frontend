@@ -65,7 +65,7 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
       )}
       
       {/* 固定高度的容器区域 */}
-      <div className="h-[280px] flex-shrink-0">
+      <div className="h-[140px] flex-shrink-0">
       {displayImage ? (
         <div className="relative group h-full">
           {/* 固定高度容器，避免图片撑开导致按钮不可见 */}
