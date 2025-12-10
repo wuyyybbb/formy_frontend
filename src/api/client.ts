@@ -87,7 +87,6 @@ const createAxiosInstance = (): AxiosInstance => {
           delete instance.defaults.headers.common['Authorization']
           return Promise.reject(new Error('会话已过期，请重新登录'))
         }
-        }
       }
 
       if (error.response) {
