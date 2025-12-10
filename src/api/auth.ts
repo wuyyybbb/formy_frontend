@@ -154,7 +154,7 @@ export function getUserInfo(): UserInfo | null {
 export function clearAuthInfo(): void {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
-  localStorage.removeItem(REFRESH_TOKEN_KEY)
+  // refresh_token 在 HttpOnly cookie 中，前端不可访问
   delete apiClient.defaults.headers.common['Authorization']
 }
 

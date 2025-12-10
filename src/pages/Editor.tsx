@@ -202,6 +202,7 @@ export default function Editor() {
       
       alert(
         `⏳ 当前有任务正在运行中...\n\n` +
+        `正在执行：${currentModeName}\n\n` +
         `请等待任务完成后再创建新任务。\n\n` +
         `💡 提示：您可以在右侧历史记录中查看任务进度。`
       )
