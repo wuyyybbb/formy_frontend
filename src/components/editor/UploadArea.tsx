@@ -54,7 +54,7 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
   }
 
   return (
-    <div>
+    <div className="flex flex-col">
       <label className="block text-sm font-medium mb-2">{label}</label>
       
       {/* 上传错误提示 */}
@@ -64,15 +64,16 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
         </div>
       )}
       
+      {/* 固定高度的容器区域 */}
+      <div className="h-[280px] flex-shrink-0">
       {displayImage ? (
-        <div className="relative group">
+        <div className="relative group h-full">
           {/* 固定高度容器，避免图片撑开导致按钮不可见 */}
-          <div className="w-full h-[280px] bg-dark-card rounded-sm border border-dark-border overflow-hidden flex items-center justify-center p-2">
+          <div className="w-full h-full bg-dark-card rounded-sm border border-dark-border overflow-hidden flex items-center justify-center p-2">
             <img
               src={displayImage}
               alt={label}
               className="max-w-full max-h-full object-contain"
-              style={{ width: 'auto', height: 'auto' }}
             />
           </div>
           <div className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-sm flex items-center justify-center">
@@ -99,9 +100,9 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
           )}
         </div>
       ) : (
-        <label className="block cursor-pointer">
+        <label className="block cursor-pointer h-full">
           <div className={`
-            h-[280px] border-2 border-dashed border-dark-border rounded-sm p-8 text-center transition-all duration-200 flex flex-col items-center justify-center
+            h-full border-2 border-dashed border-dark-border rounded-sm p-8 text-center transition-all duration-200 flex flex-col items-center justify-center
             ${isUploading 
               ? 'bg-dark-card opacity-50 cursor-wait' 
               : 'hover:border-primary/50 hover:bg-dark-card'
@@ -131,6 +132,7 @@ export default function UploadArea({ label, image, onChange, purpose = 'source',
           />
         </label>
       )}
+      </div>
     </div>
   )
 }
