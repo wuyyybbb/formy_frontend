@@ -388,12 +388,15 @@ export default function Editor() {
               if (taskDetail.source_image) {
                 // source_image 是 file_id，需要转换为完整 URL
                 const sourceUrl = getImageUrl(`/uploads/source/${taskDetail.source_image}`)
-                setSourceImage(sourceUrl)
-                setSourceFileId(taskDetail.source_image)
-                console.log('✅ 恢复原始图片:', sourceUrl)
-              } else {
-                setSourceImage(null)
-                setSourceFileId(null)
+                setModeImages(prev => ({
+                  ...prev,
+                  [currentMode]: {
+                    ...prev[currentMode],
+                    sourceImage: sourceUrl,
+                    sourceFileId: taskDetail.source_image
+                  }
+                }))
+                console.log('✅ 恢复原始图片到模式', currentMode, ':', sourceUrl)
               }
               
               // 2. 恢复参考图片（根据不同模式从不同字段获取）
@@ -420,12 +423,16 @@ export default function Editor() {
               if (referenceFileId) {
                 // 参考图片也是 file_id，需要转换为完整 URL
                 const referenceUrl = getImageUrl(`/uploads/reference/${referenceFileId}`)
-                setReferenceImage(referenceUrl)
-                setReferenceFileId(referenceFileId)
-                console.log('✅ 恢复参考图片:', referenceUrl)
+                setModeImages(prev => ({
+                  ...prev,
+                  [currentMode]: {
+                    ...prev[currentMode],
+                    referenceImage: referenceUrl,
+                    referenceFileId: referenceFileId
+                  }
+                }))
+                console.log('✅ 恢复参考图片到模式', currentMode, ':', referenceUrl)
               } else {
-                setReferenceImage(null)
-                setReferenceFileId(null)
                 console.log('ℹ️  该任务没有参考图片')
               }
               
