@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import LoginModal from '../components/auth/LoginModal'
 import ImageCompareSlider from '../components/ImageCompareSlider'
 import PoseExampleGallery from '../components/PoseExampleGallery'
+import FaceExampleGallery from ../components/FaceExampleGallery
+import BackgroundExampleGallery from ../components/BackgroundExampleGallery
 import { getUserInfo, clearAuthInfo, isLoggedIn, type UserInfo } from '../api/auth'
 
 export default function LandingPage() {
