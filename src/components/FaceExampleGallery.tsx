@@ -68,41 +68,112 @@ export default function FaceExampleGallery({ totalGroups }: FaceExampleGalleryPr
           <p className="text-xs text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">点击查看大图</p>
         </div>
       </div>
+      {/* Modal - Enlarged View */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={closeModal} onKeyDown={handleKeyDown} tabIndex={0}>
-          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} className="absolute -top-12 right-0 text-white hover:text-primary transition-colors">
-              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          onClick={closeModal}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+        >
+          <div 
+            className="relative w-full max-w-5xl my-auto" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxHeight: 'calc(100vh - 2rem)' }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeModal}
+              className="absolute -top-10 right-0 text-white hover:text-primary transition-colors z-10"
+            >
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative overflow-hidden rounded-lg border-2 border-dark-border bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin" className="w-full h-full object-contain" />
-                <div className="absolute top-4 left-4 px-3 py-2 bg-dark/90 text-white text-sm rounded">原图</div>
+
+            {/* Large 2x2 Grid - 适配屏幕，确保完整显示 */}
+            <div className="grid grid-cols-2 gap-3 bg-dark-card p-3 rounded-lg border border-dark-border">
+              {/* Origin - Top Left */}
+              <div className="relative overflow-hidden rounded-sm border border-dark-border bg-dark-card flex items-center justify-center" style={{ minHeight: '300px', maxHeight: 'calc((100vh - 200px) / 2)' }}>
+                <img
+                  src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`}
+                  alt="Origin"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '100%' }}
+                />
+                <div className="absolute top-2 left-2 px-2 py-1 bg-dark/90 text-white text-xs rounded">
+                  原图
+                </div>
               </div>
-              <div className="relative overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Result 1" className="w-full h-full object-contain" />
-                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 1</div>
+
+              {/* Image 1 - Top Right */}
+              <div className="relative overflow-hidden rounded-sm border border-dark-border bg-dark-card flex items-center justify-center" style={{ minHeight: '300px', maxHeight: 'calc((100vh - 200px) / 2)' }}>
+                <img
+                  src={`/Landing_Page_example_change_face/${currentGroup}/1.png`}
+                  alt="Result 1"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '100%' }}
+                />
+                <div className="absolute top-2 left-2 px-2 py-1 bg-primary/90 text-dark text-xs rounded">
+                  效果1
+                </div>
               </div>
-              <div className="relative overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/2.png`} alt="Result 2" className="w-full h-full object-contain" />
-                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 2</div>
+
+              {/* Image 2 - Bottom Left */}
+              <div className="relative overflow-hidden rounded-sm border border-dark-border bg-dark-card flex items-center justify-center" style={{ minHeight: '300px', maxHeight: 'calc((100vh - 200px) / 2)' }}>
+                <img
+                  src={`/Landing_Page_example_change_face/${currentGroup}/2.png`}
+                  alt="Result 2"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '100%' }}
+                />
+                <div className="absolute top-2 left-2 px-2 py-1 bg-primary/90 text-dark text-xs rounded">
+                  效果2
+                </div>
               </div>
-              <div className="relative overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/3.png`} alt="Result 3" className="w-full h-full object-contain" />
-                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 3</div>
+
+              {/* Image 3 - Bottom Right */}
+              <div className="relative overflow-hidden rounded-sm border border-dark-border bg-dark-card flex items-center justify-center" style={{ minHeight: '300px', maxHeight: 'calc((100vh - 200px) / 2)' }}>
+                <img
+                  src={`/Landing_Page_example_change_face/${currentGroup}/3.png`}
+                  alt="Result 3"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '100%' }}
+                />
+                <div className="absolute top-2 left-2 px-2 py-1 bg-primary/90 text-dark text-xs rounded">
+                  效果3
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-6 mt-6">
-              <button onClick={handlePrevGroup} className="w-12 h-12 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+
+            {/* Modal Navigation */}
+            <div className="flex items-center justify-center gap-6 mt-4">
+              <button
+                onClick={handlePrevGroup}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-              <span className="text-white text-lg">{currentGroup} / {totalGroups}</span>
-              <button onClick={handleNextGroup} className="w-12 h-12 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+
+              <span className="text-white text-lg">
+                组 {currentGroup} / {totalGroups}
+              </span>
+
+              <button
+                onClick={handleNextGroup}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
-            <div className="mt-4 text-center">
-              <p className="text-text-tertiary text-sm">使用   切换案例 | ESC 关闭</p>
+
+            {/* Keyboard Hint */}
+            <div className="text-center mt-3 text-text-tertiary text-sm">
+              使用 ← → 键切换 | ESC 关闭
             </div>
           </div>
         </div>
