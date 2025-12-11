@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { TaskError } from '../../api/tasks'
 import { classifyError, getErrorIcon, getErrorColorScheme } from '../../utils/errorClassifier'
 import ImageCompareSlider from '../ImageCompareSlider'
@@ -58,25 +58,6 @@ export default function PreviewPanel({
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h3 className="title-h3">预览</h3>
-          {resultImage && (
-            <button className="btn-secondary">
-              <svg className="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              下载结果
-            </button>
-          )}
-          {comparisonImage && (
-            <a
-              className="btn-ghost text-sm"
-              href={comparisonImage}
-              download
-              target="_blank"
-              rel="noreferrer"
-            >
-              导出对比分割图
-            </a>
-          )}
         </div>
 
         {/* Results Display - 不显示原图，只显示处理结果和对比图 */}
