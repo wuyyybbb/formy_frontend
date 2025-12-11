@@ -54,24 +54,24 @@ export default function Editor() {
   useEffect(() => {
     console.log('🔄 模式切换到:', currentMode)
     
-    // 策略：
-    // 1. 保留用户上传的图片（sourceImage, referenceImage, sourceFileId, referenceFileId）
-    // 2. 如果有任务正在运行，保留任务状态（继续轮询）
-    // 3. 如果没有任务运行，清空结果和错误
+    // 策略：切换模式时总是清空所有输入输出图片，让界面显示空白状态
+    // 这样用户切换标签时不会看到旧模式的图片
+    setSourceImage(null)
+    setReferenceImage(null)
+    setSourceFileId(null)
+    setReferenceFileId(null)
+    setResultImage(null)
+    setComparisonImage(null)
+    setTaskError(null)
+    setProgress(0)
+    setCurrentStep(null)
+    setProcessingTime(undefined)
     
-    if (!isProcessing) {
-      // 没有任务运行时，清空结果
-      setResultImage(null)
-      setComparisonImage(null)
-      setTaskError(null)
-      setProgress(0)
-      setCurrentStep(null)
-      setProcessingTime(undefined)
-      console.log('✅ 已清空结果（保留用户上传的图片）')
-    } else {
-      console.log('⚠️  任务正在运行中，保留所有状态（用户切回来时可以继续查看进度）')
-    }
-  }, [currentMode, isProcessing])
+    console.log('✅ 已清空所有输入输出图片')
+    
+    // 注意：不停止正在运行的任务，任务会在后台继续执行
+    // 但由于界面已清空，用户看到的是新模式的空白状态
+  }, [currentMode])
   
   // 处理原图上传
   const handleSourceUpload = (result: UploadResult | null) => {
