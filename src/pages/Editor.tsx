@@ -118,17 +118,21 @@ export default function Editor() {
     enabled: isProcessing && currentTaskId !== null,
     interval: 2500, // 2.5 秒轮询一次
     onUpdate: (taskInfo: TaskInfo) => {
-      // 更新任务状态
-      setTaskStatus(taskInfo.status)
-      setProgress(taskInfo.progress)
-      setCurrentStep(taskInfo.current_step || null)
-      
-      console.log('任务状态更新:', {
-        task_id: taskInfo.task_id,
-        status: taskInfo.status,
-        progress: taskInfo.progress,
-        current_step: taskInfo.current_step
-      })
+      // 只有当任务模式匹配当前模式时，才更新进度显示
+      if (taskMode === currentMode) {
+        setTaskStatus(taskInfo.status)
+        setProgress(taskInfo.progress)
+        setCurrentStep(taskInfo.current_step || null)
+        
+        console.log('任务状态更新:', {
+          task_id: taskInfo.task_id,
+          status: taskInfo.status,
+          progress: taskInfo.progress,
+          current_step: taskInfo.current_step
+        })
+      } else {
+        console.log(\⏳ 任务 \ 在后台运行，当前模式 \，不显示进度\)
+      }
     },
     onComplete: (taskInfo: TaskInfo) => {
       // 任务完成
@@ -137,19 +141,24 @@ export default function Editor() {
       setTaskStatus(TaskStatus.DONE)
       setProcessingTime(taskInfo.processing_time)
       
-      // 同时设置处理结果和对比图片
-      if (taskInfo.result?.output_image) {
-        const resultUrl = getImageUrl(taskInfo.result.output_image, true) // 强制刷新缓存
-        setResultImage(resultUrl)
+      // 只有当任务模式匹配当前模式时，才显示结果
+      if (taskMode === currentMode) {
+        if (taskInfo.result?.output_image) {
+          const resultUrl = getImageUrl(taskInfo.result.output_image, true)
+          setResultImage(resultUrl)
+        } else {
+          setResultImage(null)
+        }
+        
+        if (taskInfo.result?.comparison_image) {
+          const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true)
+          setComparisonImage(comparisonUrl)
+        } else {
+          setComparisonImage(null)
+        }
+        console.log('✅ 结果已显示在当前模式:', currentMode)
       } else {
-        setResultImage(null)
-      }
-      
-      if (taskInfo.result?.comparison_image) {
-        const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true) // 强制刷新缓存
-        setComparisonImage(comparisonUrl)
-      } else {
-        setComparisonImage(null)
+        console.log(\⚠️ 任务 \ 完成，但当前在 \ 模式，不显示结果\)
       }
       
       // 刷新历史记录
@@ -268,11 +277,12 @@ export default function Editor() {
         config
       })
       
-      // 7. 记住 task_id，轮询会自动开始
+      // 7. 记住 task_id 和任务模式，轮询会自动开始
       setCurrentTaskId(taskInfo.task_id)
+      setTaskMode(currentMode)
       setTaskStatus(taskInfo.status)
       
-      console.log('任务创建成功，开始轮询:', taskInfo)
+      console.log('任务创建成功，开始轮询:', taskInfo, '模式:', currentMode)
       
     } catch (error) {
       console.error('创建任务失败:', error)
