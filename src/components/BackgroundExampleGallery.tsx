@@ -70,24 +70,24 @@ export default function BackgroundExampleGallery({ totalGroups }: BackgroundExam
       </div>
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={closeModal} onKeyDown={handleKeyDown} tabIndex={0}>
-          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
             <button onClick={closeModal} className="absolute -top-12 right-0 text-white hover:text-accent transition-colors">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
             <div className="grid grid-cols-2 gap-4">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-dark-border bg-dark-card">
+              <div className="relative overflow-hidden rounded-lg border-2 border-dark-border bg-dark-card">
                 <img src={`/Landing_Page_example_change_bg/${currentGroup}/origin.jpg`} alt="Origin" className="w-full h-full object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-2 bg-dark/90 text-white text-sm rounded">原图</div>
               </div>
-              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
+              <div className="relative overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
                 <img src={`/Landing_Page_example_change_bg/${currentGroup}/1.png`} alt="Result 1" className="w-full h-full object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-2 bg-accent text-dark text-sm rounded font-semibold">效果 1</div>
               </div>
-              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
+              <div className="relative overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
                 <img src={`/Landing_Page_example_change_bg/${currentGroup}/2.png`} alt="Result 2" className="w-full h-full object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-2 bg-accent text-dark text-sm rounded font-semibold">效果 2</div>
               </div>
-              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
+              <div className="relative overflow-hidden rounded-lg border-2 border-accent/50 bg-dark-card">
                 <img src={`/Landing_Page_example_change_bg/${currentGroup}/3.png`} alt="Result 3" className="w-full h-full object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-2 bg-accent text-dark text-sm rounded font-semibold">效果 3</div>
               </div>
