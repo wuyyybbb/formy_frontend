@@ -39,12 +39,20 @@ export default function FaceExampleGallery({ totalGroups }: FaceExampleGalleryPr
       <div className="relative">
         <div className="grid grid-cols-2 gap-2 cursor-pointer group" onClick={openModal}>
           <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
-            <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin face" className="w-full h-full object-contain" />
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin" className="w-full h-full object-contain" />
             <div className="absolute top-2 left-2 px-2 py-1 bg-dark/80 text-white text-xs rounded">原图</div>
           </div>
           <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
-            <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Face swap result" className="w-full h-full object-contain" />
-            <div className="absolute top-2 left-2 px-2 py-1 bg-primary/80 text-dark text-xs rounded">效果</div>
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Result 1" className="w-full h-full object-contain" />
+            <div className="absolute top-2 left-2 px-2 py-1 bg-primary/80 text-dark text-xs rounded">效果1</div>
+          </div>
+          <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/2.png`} alt="Result 2" className="w-full h-full object-contain" />
+            <div className="absolute top-2 left-2 px-2 py-1 bg-primary/80 text-dark text-xs rounded">效果2</div>
+          </div>
+          <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/3.png`} alt="Result 3" className="w-full h-full object-contain" />
+            <div className="absolute top-2 left-2 px-2 py-1 bg-primary/80 text-dark text-xs rounded">效果3</div>
           </div>
         </div>
         <div className="flex items-center justify-center gap-4 mt-4">
@@ -68,12 +76,20 @@ export default function FaceExampleGallery({ totalGroups }: FaceExampleGalleryPr
             </button>
             <div className="grid grid-cols-2 gap-4">
               <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-dark-border bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin face" className="w-full h-full object-contain" />
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin" className="w-full h-full object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-2 bg-dark/90 text-white text-sm rounded">原图</div>
               </div>
               <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
-                <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Face swap result" className="w-full h-full object-contain" />
-                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果</div>
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Result 1" className="w-full h-full object-contain" />
+                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 1</div>
+              </div>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/2.png`} alt="Result 2" className="w-full h-full object-contain" />
+                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 2</div>
+              </div>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/3.png`} alt="Result 3" className="w-full h-full object-contain" />
+                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果 3</div>
               </div>
             </div>
             <div className="flex items-center justify-center gap-6 mt-6">
