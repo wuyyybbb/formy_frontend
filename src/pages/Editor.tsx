@@ -29,18 +29,31 @@ export default function Editor() {
     }
   }, [modeFromUrl])
   
-  // 图片 URL（用于显示）
-  const [sourceImage, setSourceImage] = useState<string | null>(null)
-  const [referenceImage, setReferenceImage] = useState<string | null>(null)
+  // 🗂️ 为每个模式单独保存图片状态
+  const [modeImages, setModeImages] = useState<Record<EditMode, {
+    sourceImage: string | null
+    sourceFileId: string | null
+    referenceImage: string | null
+    referenceFileId: string | null
+  }>>({
+    HEAD_SWAP: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null },
+    BACKGROUND_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null },
+    POSE_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null }
+  })
+  
+  // 当前模式的图片状态（方便访问）
+  const sourceImage = modeImages[currentMode].sourceImage
+  const sourceFileId = modeImages[currentMode].sourceFileId
+  const referenceImage = modeImages[currentMode].referenceImage
+  const referenceFileId = modeImages[currentMode].referenceFileId
+  
+  // 结果图片（所有模式共享，但切换时会清空）
   const [resultImage, setResultImage] = useState<string | null>(null)
   const [comparisonImage, setComparisonImage] = useState<string | null>(null)
   
-  // 图片 file_id（用于创建任务）
-  const [sourceFileId, setSourceFileId] = useState<string | null>(null)
-  const [referenceFileId, setReferenceFileId] = useState<string | null>(null)
-  
   // 任务状态
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
+  const [taskMode, setTaskMode] = useState<EditMode | null>(null) // 记录任务所属的模式
   const [isProcessing, setIsProcessing] = useState(false)
   const [_taskStatus, setTaskStatus] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
@@ -54,45 +67,49 @@ export default function Editor() {
   useEffect(() => {
     console.log('🔄 模式切换到:', currentMode)
     
-    // 策略：切换模式时总是清空所有输入输出图片，让界面显示空白状态
-    // 这样用户切换标签时不会看到旧模式的图片
-    setSourceImage(null)
-    setReferenceImage(null)
-    setSourceFileId(null)
-    setReferenceFileId(null)
+    // 策略 A：为每个模式保留各自的输入图片，但清空结果和任务状态显示
+    // 1. 输入图片会自动恢复（因为 modeImages[currentMode] 会切换到对应模式的图片）
+    // 2. 清空结果图片，因为结果属于旧模式
+    // 3. 如果当前有任务在运行，且任务模式不是当前模式，则隐藏任务进度
+    
     setResultImage(null)
     setComparisonImage(null)
     setTaskError(null)
-    setProgress(0)
-    setCurrentStep(null)
     setProcessingTime(undefined)
     
-    console.log('✅ 已清空所有输入输出图片')
+    // 如果有任务在运行，但任务模式不匹配当前模式，则隐藏进度显示
+    if (isProcessing && taskMode && taskMode !== currentMode) {
+      // 任务在后台继续运行，但不显示进度
+      setProgress(0)
+      setCurrentStep(null)
+      console.log(\⚠️ 任务 \ 在后台运行，当前切换到 \，隐藏进度显示\)
+    }
     
-    // 注意：不停止正在运行的任务，任务会在后台继续执行
-    // 但由于界面已清空，用户看到的是新模式的空白状态
-  }, [currentMode])
+    console.log('✅ 已切换到模式:', currentMode, '输入图片已恢复')
+  }, [currentMode, isProcessing, taskMode])
   
   // 处理原图上传
   const handleSourceUpload = (result: UploadResult | null) => {
-    if (result) {
-      setSourceImage(result.imageUrl)
-      setSourceFileId(result.fileId)
-    } else {
-      setSourceImage(null)
-      setSourceFileId(null)
-    }
+    setModeImages(prev => ({
+      ...prev,
+      [currentMode]: {
+        ...prev[currentMode],
+        sourceImage: result?.imageUrl || null,
+        sourceFileId: result?.fileId || null
+      }
+    }))
   }
   
   // 处理参考图上传
   const handleReferenceUpload = (result: UploadResult | null) => {
-    if (result) {
-      setReferenceImage(result.imageUrl)
-      setReferenceFileId(result.fileId)
-    } else {
-      setReferenceImage(null)
-      setReferenceFileId(null)
-    }
+    setModeImages(prev => ({
+      ...prev,
+      [currentMode]: {
+        ...prev[currentMode],
+        referenceImage: result?.imageUrl || null,
+        referenceFileId: result?.fileId || null
+      }
+    }))
   }
   
   // 轮询任务状态
