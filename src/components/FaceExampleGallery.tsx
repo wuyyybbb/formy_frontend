@@ -1,0 +1,96 @@
+﻿import { useState } from 'react'
+
+interface FaceExampleGalleryProps {
+  totalGroups: number
+}
+
+export default function FaceExampleGallery({ totalGroups }: FaceExampleGalleryProps) {
+  const [currentGroup, setCurrentGroup] = useState(1)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handlePrevGroup = () => {
+    setCurrentGroup(prev => prev === 1 ? totalGroups : prev - 1)
+  }
+
+  const handleNextGroup = () => {
+    setCurrentGroup(prev => prev === totalGroups ? 1 : prev + 1)
+  }
+
+  const openModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      handlePrevGroup()
+    } else if (e.key === 'ArrowRight') {
+      handleNextGroup()
+    } else if (e.key === 'Escape') {
+      closeModal()
+    }
+  }
+
+  return (
+    <>
+      <div className="relative">
+        <div className="grid grid-cols-2 gap-2 cursor-pointer group" onClick={openModal}>
+          <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin face" className="w-full h-full object-contain" />
+            <div className="absolute top-2 left-2 px-2 py-1 bg-dark/80 text-white text-xs rounded">原图</div>
+          </div>
+          <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-dark-border/50 group-hover:border-primary/50 transition-all bg-dark-card">
+            <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Face swap result" className="w-full h-full object-contain" />
+            <div className="absolute top-2 left-2 px-2 py-1 bg-primary/80 text-dark text-xs rounded">效果</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <button onClick={(e) => { e.stopPropagation(); handlePrevGroup(); }} className="w-8 h-8 flex items-center justify-center rounded-full border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <span className="text-sm text-text-tertiary">{currentGroup} / {totalGroups}</span>
+          <button onClick={(e) => { e.stopPropagation(); handleNextGroup(); }} className="w-8 h-8 flex items-center justify-center rounded-full border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+        <div className="mt-2 text-center">
+          <p className="text-xs text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">点击查看大图</p>
+        </div>
+      </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={closeModal} onKeyDown={handleKeyDown} tabIndex={0}>
+          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            <button onClick={closeModal} className="absolute -top-12 right-0 text-white hover:text-primary transition-colors">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-dark-border bg-dark-card">
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/origin.jpg`} alt="Origin face" className="w-full h-full object-contain" />
+                <div className="absolute top-4 left-4 px-3 py-2 bg-dark/90 text-white text-sm rounded">原图</div>
+              </div>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-2 border-primary/50 bg-dark-card">
+                <img src={`/Landing_Page_example_change_face/${currentGroup}/1.png`} alt="Face swap result" className="w-full h-full object-contain" />
+                <div className="absolute top-4 left-4 px-3 py-2 bg-primary text-dark text-sm rounded font-semibold">效果</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-6 mt-6">
+              <button onClick={handlePrevGroup} className="w-12 h-12 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <span className="text-white text-lg">{currentGroup} / {totalGroups}</span>
+              <button onClick={handleNextGroup} className="w-12 h-12 flex items-center justify-center rounded-full bg-dark-card border border-dark-border hover:border-primary hover:bg-primary/10 transition-all">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-text-tertiary text-sm">使用   切换案例 | ESC 关闭</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
