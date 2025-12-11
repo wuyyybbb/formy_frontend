@@ -466,10 +466,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Feature 1 */}
             <div className="card-hover group">
-              <div className="aspect-square bg-gradient-to-br from-primary/10 to-dark-card rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-                <svg className="w-24 h-24 text-primary group-hover:scale-110 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              <div className="mb-6">
+                <FaceExampleGallery totalGroups={2} />
               </div>
               <h3 className="title-h3 mb-3 text-primary">AI 换头</h3>
               <p className="text-text-secondary leading-relaxed">
@@ -479,10 +477,8 @@ export default function LandingPage() {
 
             {/* Feature 2 */}
             <div className="card-hover group">
-              <div className="aspect-square bg-gradient-to-br from-accent/10 to-dark-card rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-                <svg className="w-24 h-24 text-accent group-hover:scale-110 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+              <div className="mb-6">
+                <BackgroundExampleGallery totalGroups={3} />
               </div>
               <h3 className="title-h3 mb-3 text-accent">AI 换背景</h3>
               <p className="text-text-secondary leading-relaxed">
