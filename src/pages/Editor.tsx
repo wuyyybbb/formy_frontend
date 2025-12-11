@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom'
+﻿import { Link, useSearchParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import ModeTabs from '../components/editor/ModeTabs'
 import ControlPanel from '../components/editor/ControlPanel'
@@ -82,7 +82,7 @@ export default function Editor() {
       // 任务在后台继续运行，但不显示进度
       setProgress(0)
       setCurrentStep(null)
-      console.log(\⚠️ 任务 \ 在后台运行，当前切换到 \，隐藏进度显示\)
+      console.log(`⚠️ 任务 ${taskMode} 在后台运行，当前切换到 ${currentMode}，隐藏进度显示`)
     }
     
     console.log('✅ 已切换到模式:', currentMode, '输入图片已恢复')
@@ -131,7 +131,7 @@ export default function Editor() {
           current_step: taskInfo.current_step
         })
       } else {
-        console.log(\⏳ 任务 \ 在后台运行，当前模式 \，不显示进度\)
+        console.log(`⏳ 任务 ${taskMode} 在后台运行，当前模式 ${currentMode}，不显示进度`)
       }
     },
     onComplete: (taskInfo: TaskInfo) => {
@@ -158,7 +158,7 @@ export default function Editor() {
         }
         console.log('✅ 结果已显示在当前模式:', currentMode)
       } else {
-        console.log(\⚠️ 任务 \ 完成，但当前在 \ 模式，不显示结果\)
+        console.log(`⚠️ 任务 ${taskMode} 完成，但当前在 ${currentMode} 模式，不显示结果`)
       }
       
       // 刷新历史记录
