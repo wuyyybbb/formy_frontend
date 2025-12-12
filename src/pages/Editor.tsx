@@ -518,8 +518,8 @@ export default function Editor() {
               
               // 1. ???????
               if (taskDetail.source_image) {
-                // source_image �� file_id����Ҫת��Ϊ���õ� URL
-                const sourceUrl = getImageUrl(`/uploads/source/${taskDetail.source_image}`)
+                // 统一使用上传接口的静态路径构造 URL
+                const sourceUrl = getImageUrl(`/api/v1/uploads/${taskDetail.source_image}`)
                 setModeImages(prev => {
                   const next = {
                     ...prev,
@@ -558,8 +558,8 @@ export default function Editor() {
               }
               
               if (referenceFileId) {
-                // �ο�ͼƬҲ�� file_id����Ҫת��Ϊ���õ� URL
-                const referenceUrl = getImageUrl(`/uploads/reference/${referenceFileId}`)
+                // 统一使用上传接口的静态路径构造 URL
+                const referenceUrl = getImageUrl(`/api/v1/uploads/${referenceFileId}`)
                 setModeImages(prev => {
                   const next = {
                     ...prev,
