@@ -22,6 +22,7 @@ export default function Editor() {
   const modeFromUrl = searchParams.get('mode') as EditMode | null
   const [currentMode, setCurrentMode] = useState<EditMode>(modeFromUrl || 'HEAD_SWAP')
   const STORAGE_KEY_PREFIX = 'formy-upload-state'
+  const TASK_STATE_KEY = 'formy-task-state'
 
   // ??????�� key???????????????????
   const getStorageKey = (mode: EditMode) => `${STORAGE_KEY_PREFIX}:${mode}`
@@ -79,6 +80,31 @@ export default function Editor() {
       console.error('????????????:', err)
     }
   }
+
+  // 读取任务状态（用于刷新后恢复转圈/轮询）
+  const loadTaskState = (): { taskId: string, mode: EditMode, status?: string } | null => {
+    try {
+      const raw = localStorage.getItem(TASK_STATE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch (err) {
+      console.error('读取任务状态失败:', err)
+      return null
+    }
+  }
+
+  // 保存或清理任务状态
+  const saveTaskState = (state: { taskId: string, mode: EditMode, status?: string } | null) => {
+    try {
+      if (state) {
+        localStorage.setItem(TASK_STATE_KEY, JSON.stringify(state))
+      } else {
+        localStorage.removeItem(TASK_STATE_KEY)
+      }
+    } catch (err) {
+      console.error('保存任务状态失败:', err)
+    }
+  }
   
   // ?? URL ?????��???????
   useEffect(() => {
@@ -121,11 +147,30 @@ export default function Editor() {
   const [historyKey, setHistoryKey] = useState(0) // ????????????????
   const [showLoginModal, setShowLoginModal] = useState(false) // ??????????
   
-  // ??��?????????????????????????????
+  // ��?�?????????????????????????????
   useEffect(() => {
     const restored = loadUploadState()
     setModeImages(restored)
     console.log('? ??????��????????')
+
+    // ��?�δ������?��ˢ��??���ز��鶯��
+    const savedTask = loadTaskState()
+    if (savedTask && savedTask.taskId && savedTask.mode) {
+      const statusLower = (savedTask.status || '').toLowerCase()
+      if (['done', 'failed', 'cancelled'].includes(statusLower)) {
+        saveTaskState(null)
+      } else {
+        // ��ģʽ���������ϲ�ͬ������ģʽ��������
+        if (currentMode !== savedTask.mode) {
+          setCurrentMode(savedTask.mode)
+        }
+        setCurrentTaskId(savedTask.taskId)
+        setTaskMode(savedTask.mode)
+        setIsProcessing(true)
+        setTaskStatus(savedTask.status || TaskStatus.PENDING)
+        console.log('✅ ��?�δ������??��ѯ:', savedTask.taskId, 'ģʽ:', savedTask.mode)
+      }
+    }
   }, [])
   
   // ?? ?????��???????
@@ -212,6 +257,10 @@ export default function Editor() {
           progress: taskInfo.progress,
           current_step: taskInfo.current_step
         })
+        // �첽����״̬�����������ڸ��¶�
+        if (currentTaskId && taskMode) {
+          saveTaskState({ taskId: currentTaskId, mode: taskMode, status: taskInfo.status })
+        }
       } else {
         console.log(`? ???? ${taskMode} ???????��?????? ${currentMode}???????????`)
       }
@@ -242,12 +291,15 @@ export default function Editor() {
       
       // ?????????
       setHistoryKey(prev => prev + 1)
+      // �����޳�δ������״̬
+      saveTaskState(null)
     },
     onError: (taskInfo: TaskInfo) => {
       // ???????
       console.error('? ???????:', taskInfo)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.FAILED)
+      saveTaskState(null)
       
       // ????????????????
       const error = taskInfo.error
@@ -360,6 +412,7 @@ export default function Editor() {
       setCurrentTaskId(taskInfo.task_id)
       setTaskMode(currentMode)
       setTaskStatus(taskInfo.status)
+      saveTaskState({ taskId: taskInfo.task_id, mode: currentMode, status: taskInfo.status })
       
       console.log('????????????????:', taskInfo, '??:', currentMode)
       
