@@ -1,4 +1,4 @@
-ï»¿import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import ModeTabs from '../components/editor/ModeTabs'
 import ControlPanel from '../components/editor/ControlPanel'
@@ -22,14 +22,14 @@ export default function Editor() {
   const modeFromUrl = searchParams.get('mode') as EditMode | null
   const [currentMode, setCurrentMode] = useState<EditMode>(modeFromUrl || 'HEAD_SWAP')
   
-  // å½“ URL å‚æ•°å˜åŒ–æ—¶æ›´æ–°æ¨¡å¼
+  // µ± URL ²ÎÊı±ä»¯Ê±¸üĞÂÄ£Ê½
   useEffect(() => {
     if (modeFromUrl && (modeFromUrl === 'HEAD_SWAP' || modeFromUrl === 'BACKGROUND_CHANGE' || modeFromUrl === 'POSE_CHANGE')) {
       setCurrentMode(modeFromUrl)
     }
   }, [modeFromUrl])
   
-  // ğŸ—‚ï¸ ä¸ºæ¯ä¸ªæ¨¡å¼å•ç‹¬ä¿å­˜å›¾ç‰‡çŠ¶æ€
+  // ??? ÎªÃ¿¸öÄ£Ê½µ¥¶À±£´æÍ¼Æ¬×´Ì¬
   const [modeImages, setModeImages] = useState<Record<EditMode, {
     sourceImage: string | null
     sourceFileId: string | null
@@ -41,54 +41,54 @@ export default function Editor() {
     POSE_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null }
   })
   
-  // å½“å‰æ¨¡å¼çš„å›¾ç‰‡çŠ¶æ€ï¼ˆæ–¹ä¾¿è®¿é—®ï¼‰
+  // µ±Ç°Ä£Ê½µÄÍ¼Æ¬×´Ì¬£¨·½±ã·ÃÎÊ£©
   const sourceImage = modeImages[currentMode].sourceImage
   const sourceFileId = modeImages[currentMode].sourceFileId
   const referenceImage = modeImages[currentMode].referenceImage
   const referenceFileId = modeImages[currentMode].referenceFileId
   
-  // ç»“æœå›¾ç‰‡ï¼ˆæ‰€æœ‰æ¨¡å¼å…±äº«ï¼Œä½†åˆ‡æ¢æ—¶ä¼šæ¸…ç©ºï¼‰
+  // ½á¹ûÍ¼Æ¬£¨ËùÓĞÄ£Ê½¹²Ïí£¬µ«ÇĞ»»Ê±»áÇå¿Õ£©
   const [resultImage, setResultImage] = useState<string | null>(null)
   const [comparisonImage, setComparisonImage] = useState<string | null>(null)
   
-  // ä»»åŠ¡çŠ¶æ€
+  // ÈÎÎñ×´Ì¬
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
-  const [taskMode, setTaskMode] = useState<EditMode | null>(null) // è®°å½•ä»»åŠ¡æ‰€å±çš„æ¨¡å¼
+  const [taskMode, setTaskMode] = useState<EditMode | null>(null) // ¼ÇÂ¼ÈÎÎñËùÊôµÄÄ£Ê½
   const [isProcessing, setIsProcessing] = useState(false)
   const [_taskStatus, setTaskStatus] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState<string | null>(null)
   const [taskError, setTaskError] = useState<TaskError | null>(null)
   const [processingTime, setProcessingTime] = useState<number | undefined>(undefined)
-  const [historyKey, setHistoryKey] = useState(0) // ç”¨äºè§¦å‘å†å²è®°å½•åˆ·æ–°
-  const [showLoginModal, setShowLoginModal] = useState(false) // æ§åˆ¶ç™»å½•å¼¹çª—
+  const [historyKey, setHistoryKey] = useState(0) // ÓÃÓÚ´¥·¢ÀúÊ·¼ÇÂ¼Ë¢ĞÂ
+  const [showLoginModal, setShowLoginModal] = useState(false) // ¿ØÖÆµÇÂ¼µ¯´°
   
-  // ğŸ”„ å½“æ¨¡å¼åˆ‡æ¢æ—¶çš„å¤„ç†
+  // ?? µ±Ä£Ê½ÇĞ»»Ê±µÄ´¦Àí
   useEffect(() => {
-    console.log('ğŸ”„ æ¨¡å¼åˆ‡æ¢åˆ°:', currentMode)
+    console.log('?? Ä£Ê½ÇĞ»»µ½:', currentMode)
     
-    // ç­–ç•¥ Aï¼šä¸ºæ¯ä¸ªæ¨¡å¼ä¿ç•™å„è‡ªçš„è¾“å…¥å›¾ç‰‡ï¼Œä½†æ¸…ç©ºç»“æœå’Œä»»åŠ¡çŠ¶æ€æ˜¾ç¤º
-    // 1. è¾“å…¥å›¾ç‰‡ä¼šè‡ªåŠ¨æ¢å¤ï¼ˆå› ä¸º modeImages[currentMode] ä¼šåˆ‡æ¢åˆ°å¯¹åº”æ¨¡å¼çš„å›¾ç‰‡ï¼‰
-    // 2. æ¸…ç©ºç»“æœå›¾ç‰‡ï¼Œå› ä¸ºç»“æœå±äºæ—§æ¨¡å¼
-    // 3. å¦‚æœå½“å‰æœ‰ä»»åŠ¡åœ¨è¿è¡Œï¼Œä¸”ä»»åŠ¡æ¨¡å¼ä¸æ˜¯å½“å‰æ¨¡å¼ï¼Œåˆ™éšè—ä»»åŠ¡è¿›åº¦
+    // ²ßÂÔ A£ºÎªÃ¿¸öÄ£Ê½±£Áô¸÷×ÔµÄÊäÈëÍ¼Æ¬£¬µ«Çå¿Õ½á¹ûºÍÈÎÎñ×´Ì¬ÏÔÊ¾
+    // 1. ÊäÈëÍ¼Æ¬»á×Ô¶¯»Ö¸´£¨ÒòÎª modeImages[currentMode] »áÇĞ»»µ½¶ÔÓ¦Ä£Ê½µÄÍ¼Æ¬£©
+    // 2. Çå¿Õ½á¹ûÍ¼Æ¬£¬ÒòÎª½á¹ûÊôÓÚ¾ÉÄ£Ê½
+    // 3. Èç¹ûµ±Ç°ÓĞÈÎÎñÔÚÔËĞĞ£¬ÇÒÈÎÎñÄ£Ê½²»ÊÇµ±Ç°Ä£Ê½£¬ÔòÒş²ØÈÎÎñ½ø¶È
     
     setResultImage(null)
     setComparisonImage(null)
     setTaskError(null)
     setProcessingTime(undefined)
     
-    // å¦‚æœæœ‰ä»»åŠ¡åœ¨è¿è¡Œï¼Œä½†ä»»åŠ¡æ¨¡å¼ä¸åŒ¹é…å½“å‰æ¨¡å¼ï¼Œåˆ™éšè—è¿›åº¦æ˜¾ç¤º
+    // Èç¹ûÓĞÈÎÎñÔÚÔËĞĞ£¬µ«ÈÎÎñÄ£Ê½²»Æ¥Åäµ±Ç°Ä£Ê½£¬ÔòÒş²Ø½ø¶ÈÏÔÊ¾
     if (isProcessing && taskMode && taskMode !== currentMode) {
-      // ä»»åŠ¡åœ¨åå°ç»§ç»­è¿è¡Œï¼Œä½†ä¸æ˜¾ç¤ºè¿›åº¦
+      // ÈÎÎñÔÚºóÌ¨¼ÌĞøÔËĞĞ£¬µ«²»ÏÔÊ¾½ø¶È
       setProgress(0)
       setCurrentStep(null)
-      console.log(`âš ï¸ ä»»åŠ¡ ${taskMode} åœ¨åå°è¿è¡Œï¼Œå½“å‰åˆ‡æ¢åˆ° ${currentMode}ï¼Œéšè—è¿›åº¦æ˜¾ç¤º`)
+      console.log(`?? ÈÎÎñ ${taskMode} ÔÚºóÌ¨ÔËĞĞ£¬µ±Ç°ÇĞ»»µ½ ${currentMode}£¬Òş²Ø½ø¶ÈÏÔÊ¾`)
     }
     
-    console.log('âœ… å·²åˆ‡æ¢åˆ°æ¨¡å¼:', currentMode, 'è¾“å…¥å›¾ç‰‡å·²æ¢å¤')
+    console.log('? ÒÑÇĞ»»µ½Ä£Ê½:', currentMode, 'ÊäÈëÍ¼Æ¬ÒÑ»Ö¸´')
   }, [currentMode, isProcessing, taskMode])
   
-  // å¤„ç†åŸå›¾ä¸Šä¼ 
+  // ´¦ÀíÔ­Í¼ÉÏ´«
   const handleSourceUpload = (result: UploadResult | null) => {
     setModeImages(prev => ({
       ...prev,
@@ -100,7 +100,7 @@ export default function Editor() {
     }))
   }
   
-  // å¤„ç†å‚è€ƒå›¾ä¸Šä¼ 
+  // ´¦Àí²Î¿¼Í¼ÉÏ´«
   const handleReferenceUpload = (result: UploadResult | null) => {
     setModeImages(prev => ({
       ...prev,
@@ -112,36 +112,37 @@ export default function Editor() {
     }))
   }
   
-  // è½®è¯¢ä»»åŠ¡çŠ¶æ€
+  // ÂÖÑ¯ÈÎÎñ×´Ì¬
   useTaskPolling({
     taskId: currentTaskId,
     enabled: isProcessing && currentTaskId !== null,
-    interval: 2500, // 2.5 ç§’è½®è¯¢ä¸€æ¬¡
+    interval: 2500, // 2.5 ÃëÂÖÑ¯Ò»´Î
     onUpdate: (taskInfo: TaskInfo) => {
-      // åªæœ‰å½“ä»»åŠ¡æ¨¡å¼åŒ¹é…å½“å‰æ¨¡å¼æ—¶ï¼Œæ‰æ›´æ–°è¿›åº¦æ˜¾ç¤º
+      // Ö»ÓĞµ±ÈÎÎñÄ£Ê½Æ¥Åäµ±Ç°Ä£Ê½Ê±£¬²Å¸üĞÂ½ø¶ÈÏÔÊ¾
       if (taskMode === currentMode) {
         setTaskStatus(taskInfo.status)
         setProgress(taskInfo.progress)
         setCurrentStep(taskInfo.current_step || null)
         
-        console.log('ä»»åŠ¡çŠ¶æ€æ›´æ–°:', {
+        console.log('ÈÎÎñ×´Ì¬¸üĞÂ:', {
           task_id: taskInfo.task_id,
           status: taskInfo.status,
           progress: taskInfo.progress,
           current_step: taskInfo.current_step
         })
       } else {
-        console.log(`â³ ä»»åŠ¡ ${taskMode} åœ¨åå°è¿è¡Œï¼Œå½“å‰æ¨¡å¼ ${currentMode}ï¼Œä¸æ˜¾ç¤ºè¿›åº¦`)
+        console.log(`? ÈÎÎñ ${taskMode} ÔÚºóÌ¨ÔËĞĞ£¬µ±Ç°Ä£Ê½ ${currentMode}£¬²»ÏÔÊ¾½ø¶È`)
       }
     },
     onComplete: (taskInfo: TaskInfo) => {
-      // ä»»åŠ¡å®Œæˆ
-      console.log('âœ… Task completed:', taskInfo)
+      // ÈÎÎñÍê³É
+      console.log('? Task completed:', taskInfo)
+      console.log('?? Result:', taskInfo.result)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.DONE)
       setProcessingTime(taskInfo.processing_time)
       
-      // åªæœ‰å½“ä»»åŠ¡æ¨¡å¼åŒ¹é…å½“å‰æ¨¡å¼æ—¶ï¼Œæ‰æ˜¾ç¤ºç»“æœ
+      // Ö»ÓĞµ±ÈÎÎñÄ£Ê½Æ¥Åäµ±Ç°Ä£Ê½Ê±£¬²ÅÏÔÊ¾½á¹û
       if (taskMode === currentMode) {
         if (taskInfo.result?.output_image) {
           const resultUrl = getImageUrl(taskInfo.result.output_image, true)
@@ -152,108 +153,108 @@ export default function Editor() {
           const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true)
           setComparisonImage(comparisonUrl)
         }
-        console.log('âœ… ç»“æœå·²æ˜¾ç¤ºåœ¨å½“å‰æ¨¡å¼:', currentMode)
+        console.log('? ½á¹ûÒÑÏÔÊ¾ÔÚµ±Ç°Ä£Ê½:', currentMode)
       } else {
-        console.log(`âš ï¸ ä»»åŠ¡ ${taskMode} å®Œæˆï¼Œä½†å½“å‰åœ¨ ${currentMode} æ¨¡å¼ï¼Œä¸æ˜¾ç¤ºç»“æœ`)
+        console.log(`?? ÈÎÎñ ${taskMode} Íê³É£¬µ«µ±Ç°ÔÚ ${currentMode} Ä£Ê½£¬²»ÏÔÊ¾½á¹û`)
       }
       
-      // åˆ·æ–°å†å²è®°å½•
+      // Ë¢ĞÂÀúÊ·¼ÇÂ¼
       setHistoryKey(prev => prev + 1)
     },
     onError: (taskInfo: TaskInfo) => {
-      // ä»»åŠ¡å¤±è´¥
-      console.error('âŒ ä»»åŠ¡å¤±è´¥:', taskInfo)
+      // ÈÎÎñÊ§°Ü
+      console.error('? ÈÎÎñÊ§°Ü:', taskInfo)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.FAILED)
       
-      // ä¿å­˜å®Œæ•´çš„é”™è¯¯å¯¹è±¡
+      // ±£´æÍêÕûµÄ´íÎó¶ÔÏó
       const error = taskInfo.error
       setTaskError(error || null)
       
-      // ä½¿ç”¨ç»Ÿä¸€çš„é”™è¯¯æ¶ˆæ¯æ ¼å¼åŒ–
+      // Ê¹ÓÃÍ³Ò»µÄ´íÎóÏûÏ¢¸ñÊ½»¯
       const formattedError = formatErrorDisplay(
         error?.code,
         error?.message,
         error?.details
       )
       
-      // è®°å½•è¯¦ç»†ä¿¡æ¯åˆ°æ§åˆ¶å°
+      // ¼ÇÂ¼ÏêÏ¸ĞÅÏ¢µ½¿ØÖÆÌ¨
       if (error) {
-        console.error('é”™è¯¯ç :', error.code)
-        console.error('é”™è¯¯æ¶ˆæ¯:', error.message)
+        console.error('´íÎóÂë:', error.code)
+        console.error('´íÎóÏûÏ¢:', error.message)
         if (error.details) {
-          console.error('é”™è¯¯è¯¦æƒ…:', error.details)
+          console.error('´íÎóÏêÇé:', error.details)
         }
       }
       
-      // æ„å»ºç”¨æˆ·å‹å¥½çš„æç¤ºä¿¡æ¯
-      let alertMessage = `âŒ ${formattedError.title}\n\n${formattedError.message}`
+      // ¹¹½¨ÓÃ»§ÓÑºÃµÄÌáÊ¾ĞÅÏ¢
+      let alertMessage = `? ${formattedError.title}\n\n${formattedError.message}`
       
-      // æ·»åŠ å»ºè®®
+      // Ìí¼Ó½¨Òé
       if (formattedError.suggestion) {
-        alertMessage += `\n\nğŸ’¡ å»ºè®®ï¼š${formattedError.suggestion}`
+        alertMessage += `\n\n?? ½¨Òé£º${formattedError.suggestion}`
       }
       
-      // æ·»åŠ é‡è¯•æç¤º
+      // Ìí¼ÓÖØÊÔÌáÊ¾
       if (error?.code && isRetryableError(error.code)) {
-        alertMessage += '\n\nâš ï¸ è¿™æ˜¯ä¸€ä¸ªä¸´æ—¶é”™è¯¯ï¼Œå»ºè®®ç¨åé‡è¯•'
+        alertMessage += '\n\n?? ÕâÊÇÒ»¸öÁÙÊ±´íÎó£¬½¨ÒéÉÔºóÖØÊÔ'
       }
       
-      // å¼¹çª—æ˜¾ç¤ºé”™è¯¯
+      // µ¯´°ÏÔÊ¾´íÎó
       alert(alertMessage)
     }
   })
   
-  // å¤„ç†ç”ŸæˆæŒ‰é’®ç‚¹å‡»
+  // ´¦ÀíÉú³É°´Å¥µã»÷
   const handleGenerate = async () => {
-    // 0. æ£€æŸ¥ç”¨æˆ·æ˜¯å¦å·²ç™»å½•
+    // 0. ¼ì²éÓÃ»§ÊÇ·ñÒÑµÇÂ¼
     if (!isLoggedIn()) {
       setShowLoginModal(true)
       return
     }
     
-    // 1. æ£€æŸ¥æ˜¯å¦æœ‰ä»»åŠ¡æ­£åœ¨è¿è¡Œ
+    // 1. ¼ì²éÊÇ·ñÓĞÈÎÎñÕıÔÚÔËĞĞ
     if (isProcessing && currentTaskId) {
-      // è·å–å½“å‰æ­£åœ¨è¿è¡Œçš„ä»»åŠ¡æ¨¡å¼
+      // »ñÈ¡µ±Ç°ÕıÔÚÔËĞĞµÄÈÎÎñÄ£Ê½
       const modeNames: Record<string, string> = {
-        'HEAD_SWAP': 'æ¢å¤´',
-        'BACKGROUND_CHANGE': 'æ¢èƒŒæ™¯',
-        'POSE_CHANGE': 'æ¢å§¿åŠ¿'
+        'HEAD_SWAP': '»»Í·',
+        'BACKGROUND_CHANGE': '»»±³¾°',
+        'POSE_CHANGE': '»»×ËÊÆ'
       }
       const currentModeName = modeNames[currentMode] || currentMode
       
       alert(
-        `â³ å½“å‰æœ‰ä»»åŠ¡æ­£åœ¨è¿è¡Œä¸­...\n\n` +
-        `æ­£åœ¨æ‰§è¡Œï¼š${currentModeName}\n\n` +
-        `è¯·ç­‰å¾…ä»»åŠ¡å®Œæˆåå†åˆ›å»ºæ–°ä»»åŠ¡ã€‚\n\n` +
-        `ğŸ’¡ æç¤ºï¼šæ‚¨å¯ä»¥åœ¨å³ä¾§å†å²è®°å½•ä¸­æŸ¥çœ‹ä»»åŠ¡è¿›åº¦ã€‚`
+        `? µ±Ç°ÓĞÈÎÎñÕıÔÚÔËĞĞÖĞ...\n\n` +
+        `ÕıÔÚÖ´ĞĞ£º${currentModeName}\n\n` +
+        `ÇëµÈ´ıÈÎÎñÍê³ÉºóÔÙ´´½¨ĞÂÈÎÎñ¡£\n\n` +
+        `?? ÌáÊ¾£ºÄú¿ÉÒÔÔÚÓÒ²àÀúÊ·¼ÇÂ¼ÖĞ²é¿´ÈÎÎñ½ø¶È¡£`
       )
       return
     }
     
-    // 2. éªŒè¯å¿…è¦çš„å›¾ç‰‡å·²ä¸Šä¼ 
+    // 2. ÑéÖ¤±ØÒªµÄÍ¼Æ¬ÒÑÉÏ´«
     if (!sourceFileId) {
-      alert('è¯·å…ˆä¸Šä¼ åŸå§‹å›¾ç‰‡')
+      alert('ÇëÏÈÉÏ´«Ô­Ê¼Í¼Æ¬')
       return
     }
     
-    // 3. æ ¹æ®æ¨¡å¼éªŒè¯æ˜¯å¦éœ€è¦å‚è€ƒå›¾
+    // 3. ¸ù¾İÄ£Ê½ÑéÖ¤ÊÇ·ñĞèÒª²Î¿¼Í¼
     if ((currentMode === 'HEAD_SWAP' || currentMode === 'POSE_CHANGE' || currentMode === 'BACKGROUND_CHANGE') && !referenceFileId) {
-      const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? 'èƒŒæ™¯å›¾ç‰‡' : 'å‚è€ƒå›¾ç‰‡'
-      alert(`æ­¤æ¨¡å¼éœ€è¦ä¸Šä¼ ${imageTypeName}`)
+      const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? '±³¾°Í¼Æ¬' : '²Î¿¼Í¼Æ¬'
+      alert(`´ËÄ£Ê½ĞèÒªÉÏ´«${imageTypeName}`)
       return
     }
     
-    // 4. é‡ç½®çŠ¶æ€
+    // 4. ÖØÖÃ×´Ì¬
     setResultImage(null)
     setTaskError(null)
     setProgress(0)
     setCurrentStep(null)
     
-    // 5. ç»„è£…è¯·æ±‚ä½“
+    // 5. ×é×°ÇëÇóÌå
     const config: Record<string, any> = {}
     
-    // æ ¹æ®ä¸åŒæ¨¡å¼æ·»åŠ é…ç½®
+    // ¸ù¾İ²»Í¬Ä£Ê½Ìí¼ÓÅäÖÃ
     if (currentMode === 'HEAD_SWAP' && referenceFileId) {
       config.target_face_image = referenceFileId
     } else if (currentMode === 'BACKGROUND_CHANGE' && referenceFileId) {
@@ -266,36 +267,36 @@ export default function Editor() {
       setIsProcessing(true)
       setTaskStatus(TaskStatus.PENDING)
       
-      // 6. å‘é€åˆ›å»ºä»»åŠ¡è¯·æ±‚
+      // 6. ·¢ËÍ´´½¨ÈÎÎñÇëÇó
       const taskInfo = await createTask({
         mode: currentMode as ApiEditMode,
         source_image: sourceFileId,
         config
       })
       
-      // 7. è®°ä½ task_id å’Œä»»åŠ¡æ¨¡å¼ï¼Œè½®è¯¢ä¼šè‡ªåŠ¨å¼€å§‹
+      // 7. ¼Ç×¡ task_id ºÍÈÎÎñÄ£Ê½£¬ÂÖÑ¯»á×Ô¶¯¿ªÊ¼
       setCurrentTaskId(taskInfo.task_id)
       setTaskMode(currentMode)
       setTaskStatus(taskInfo.status)
       
-      console.log('ä»»åŠ¡åˆ›å»ºæˆåŠŸï¼Œå¼€å§‹è½®è¯¢:', taskInfo, 'æ¨¡å¼:', currentMode)
+      console.log('ÈÎÎñ´´½¨³É¹¦£¬¿ªÊ¼ÂÖÑ¯:', taskInfo, 'Ä£Ê½:', currentMode)
       
     } catch (error) {
-      console.error('åˆ›å»ºä»»åŠ¡å¤±è´¥:', error)
+      console.error('´´½¨ÈÎÎñÊ§°Ü:', error)
       
-      // æå–é”™è¯¯ä¿¡æ¯
-      let errorMsg = 'æœªçŸ¥é”™è¯¯'
+      // ÌáÈ¡´íÎóĞÅÏ¢
+      let errorMsg = 'Î´Öª´íÎó'
       if (error instanceof Error) {
         errorMsg = error.message
       } else if (typeof error === 'string') {
         errorMsg = error
       } else if (error && typeof error === 'object') {
-        // å°è¯•ä»å¯¹è±¡ä¸­æå–é”™è¯¯ä¿¡æ¯
+        // ³¢ÊÔ´Ó¶ÔÏóÖĞÌáÈ¡´íÎóĞÅÏ¢
         const err = error as any
         errorMsg = err.message || err.error || JSON.stringify(error)
       }
       
-      alert('åˆ›å»ºä»»åŠ¡å¤±è´¥:\n' + errorMsg)
+      alert('´´½¨ÈÎÎñÊ§°Ü:\n' + errorMsg)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.FAILED)
       setCurrentTaskId(null)
@@ -308,18 +309,18 @@ export default function Editor() {
       <header className="border-b border-dark-border backdrop-blur-sm flex-shrink-0 z-10">
         <div className="px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* å·¦ä¾§ï¼šLogo */}
+            {/* ×ó²à£ºLogo */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-base flex-shrink-0">
               <div className="w-8 h-8 bg-primary rounded-sm"></div>
               <span className="text-xl font-bold">Formy</span>
             </Link>
             
-            {/* ä¸­é—´ï¼šMode Tabs */}
+            {/* ÖĞ¼ä£ºMode Tabs */}
             <div className="hidden md:flex flex-1 justify-center">
               <ModeTabs currentMode={currentMode} onModeChange={setCurrentMode} />
             </div>
 
-            {/* å³ä¾§ï¼šUser Menu */}
+            {/* ÓÒ²à£ºUser Menu */}
             <div className="flex-shrink-0">
               <UserMenu />
             </div>
@@ -371,18 +372,18 @@ export default function Editor() {
           key={historyKey}
           currentMode={currentMode}
           onSelectTask={async (task) => {
-            // ç‚¹å‡»å†å²ä»»åŠ¡æ—¶ï¼Œå…ˆè°ƒç”¨ API è·å–å®Œæ•´ä»»åŠ¡è¯¦æƒ…
-            console.log('ğŸ“‹ ç‚¹å‡»å†å²ä»»åŠ¡:', task.task_id)
+            // µã»÷ÀúÊ·ÈÎÎñÊ±£¬ÏÈµ÷ÓÃ API »ñÈ¡ÍêÕûÈÎÎñÏêÇé
+            console.log('?? µã»÷ÀúÊ·ÈÎÎñ:', task.task_id)
             
             try {
-              // è°ƒç”¨ GET /api/v1/tasks/{task_id} è·å–å®Œæ•´ä»»åŠ¡è¯¦æƒ…
+              // µ÷ÓÃ GET /api/v1/tasks/{task_id} »ñÈ¡ÍêÕûÈÎÎñÏêÇé
               const { getTask } = await import('../api/tasks')
               const taskDetail = await getTask(task.task_id)
-              console.log('âœ… è·å–ä»»åŠ¡è¯¦æƒ…:', taskDetail)
+              console.log('? »ñÈ¡ÈÎÎñÏêÇé:', taskDetail)
               
-              // 1. æ¢å¤åŸå§‹å›¾ç‰‡
+              // 1. »Ö¸´Ô­Ê¼Í¼Æ¬
               if (taskDetail.source_image) {
-                // source_image æ˜¯ file_idï¼Œéœ€è¦è½¬æ¢ä¸ºå®Œæ•´ URL
+                // source_image ÊÇ file_id£¬ĞèÒª×ª»»ÎªÍêÕû URL
                 const sourceUrl = getImageUrl(`/uploads/source/${taskDetail.source_image}`)
                 setModeImages(prev => ({
                   ...prev,
@@ -392,32 +393,32 @@ export default function Editor() {
                     sourceFileId: taskDetail.source_image
                   }
                 }))
-                console.log('âœ… æ¢å¤åŸå§‹å›¾ç‰‡åˆ°æ¨¡å¼', currentMode, ':', sourceUrl)
+                console.log('? »Ö¸´Ô­Ê¼Í¼Æ¬µ½Ä£Ê½', currentMode, ':', sourceUrl)
               }
               
-              // 2. æ¢å¤å‚è€ƒå›¾ç‰‡ï¼ˆæ ¹æ®ä¸åŒæ¨¡å¼ä»ä¸åŒå­—æ®µè·å–ï¼‰
+              // 2. »Ö¸´²Î¿¼Í¼Æ¬£¨¸ù¾İ²»Í¬Ä£Ê½´Ó²»Í¬×Ö¶Î»ñÈ¡£©
               let referenceFileId: string | null = null
               
-              // ä¼˜å…ˆä» reference_image å­—æ®µè·å–
+              // ÓÅÏÈ´Ó reference_image ×Ö¶Î»ñÈ¡
               if (taskDetail.reference_image) {
                 referenceFileId = taskDetail.reference_image
               }
-              // å¦‚æœæ²¡æœ‰ï¼Œä» config ä¸­æ ¹æ®æ¨¡å¼è·å–
+              // Èç¹ûÃ»ÓĞ£¬´Ó config ÖĞ¸ù¾İÄ£Ê½»ñÈ¡
               else if (taskDetail.config) {
                 if (currentMode === 'BACKGROUND_CHANGE') {
-                  // æ¢èƒŒæ™¯ï¼šä» background_image æˆ– bg_image è·å–
+                  // »»±³¾°£º´Ó background_image »ò bg_image »ñÈ¡
                   referenceFileId = taskDetail.config.background_image || taskDetail.config.bg_image
                 } else if (currentMode === 'HEAD_SWAP') {
-                  // æ¢å¤´ï¼šä» target_face_image æˆ– cloth_image è·å–
+                  // »»Í·£º´Ó target_face_image »ò cloth_image »ñÈ¡
                   referenceFileId = taskDetail.config.target_face_image || taskDetail.config.cloth_image || taskDetail.config.reference_image
                 } else if (currentMode === 'POSE_CHANGE') {
-                  // æ¢å§¿åŠ¿ï¼šä» pose_image æˆ– pose_reference è·å–
+                  // »»×ËÊÆ£º´Ó pose_image »ò pose_reference »ñÈ¡
                   referenceFileId = taskDetail.config.pose_image || taskDetail.config.pose_reference || taskDetail.config.reference_image
                 }
               }
               
               if (referenceFileId) {
-                // å‚è€ƒå›¾ç‰‡ä¹Ÿæ˜¯ file_idï¼Œéœ€è¦è½¬æ¢ä¸ºå®Œæ•´ URL
+                // ²Î¿¼Í¼Æ¬Ò²ÊÇ file_id£¬ĞèÒª×ª»»ÎªÍêÕû URL
                 const referenceUrl = getImageUrl(`/uploads/reference/${referenceFileId}`)
                 setModeImages(prev => ({
                   ...prev,
@@ -427,16 +428,16 @@ export default function Editor() {
                     referenceFileId: referenceFileId
                   }
                 }))
-                console.log('âœ… æ¢å¤å‚è€ƒå›¾ç‰‡åˆ°æ¨¡å¼', currentMode, ':', referenceUrl)
+                console.log('? »Ö¸´²Î¿¼Í¼Æ¬µ½Ä£Ê½', currentMode, ':', referenceUrl)
               } else {
-                console.log('â„¹ï¸  è¯¥ä»»åŠ¡æ²¡æœ‰å‚è€ƒå›¾ç‰‡')
+                console.log('??  ¸ÃÈÎÎñÃ»ÓĞ²Î¿¼Í¼Æ¬')
               }
               
-              // 3. æ¢å¤è¾“å‡ºç»“æœï¼ˆå³ä¾§é¢„è§ˆï¼‰
+              // 3. »Ö¸´Êä³ö½á¹û£¨ÓÒ²àÔ¤ÀÀ£©
               if (taskDetail.result?.output_image) {
                 const resultUrl = getImageUrl(taskDetail.result.output_image, true)
                 setResultImage(resultUrl)
-                console.log('âœ… æ¢å¤ç»“æœå›¾ç‰‡:', resultUrl)
+                console.log('? »Ö¸´½á¹ûÍ¼Æ¬:', resultUrl)
               } else {
                 setResultImage(null)
               }
@@ -444,12 +445,12 @@ export default function Editor() {
               if (taskDetail.result?.comparison_image) {
                 const comparisonUrl = getImageUrl(taskDetail.result.comparison_image, true)
                 setComparisonImage(comparisonUrl)
-                console.log('âœ… æ¢å¤å¯¹æ¯”å›¾ç‰‡:', comparisonUrl)
+                console.log('? »Ö¸´¶Ô±ÈÍ¼Æ¬:', comparisonUrl)
               } else {
                 setComparisonImage(null)
               }
               
-              // 4. æ¢å¤ä»»åŠ¡çŠ¶æ€
+              // 4. »Ö¸´ÈÎÎñ×´Ì¬
               setCurrentTaskId(taskDetail.task_id)
               setTaskStatus(taskDetail.status)
               setProgress(taskDetail.progress)
@@ -463,10 +464,10 @@ export default function Editor() {
                 setProcessingTime((taskDetail as any).processing_time)
               }
               
-              console.log('âœ… å†å²ä»»åŠ¡çŠ¶æ€å·²å®Œå…¨æ¢å¤')
+              console.log('? ÀúÊ·ÈÎÎñ×´Ì¬ÒÑÍêÈ«»Ö¸´')
             } catch (error) {
-              console.error('âŒ è·å–ä»»åŠ¡è¯¦æƒ…å¤±è´¥:', error)
-              // å³ä½¿å¤±è´¥ä¹Ÿå°½é‡æ˜¾ç¤ºåˆ—è¡¨ä¸­çš„ä¿¡æ¯
+              console.error('? »ñÈ¡ÈÎÎñÏêÇéÊ§°Ü:', error)
+              // ¼´Ê¹Ê§°ÜÒ²¾¡Á¿ÏÔÊ¾ÁĞ±íÖĞµÄĞÅÏ¢
               if (task.result?.output_image) {
                 const resultUrl = getImageUrl(task.result.output_image, true)
                 setResultImage(resultUrl)
@@ -474,31 +475,31 @@ export default function Editor() {
             }
           }}
           onRetryTask={(task) => {
-            // é‡è¯•å¤±è´¥çš„ä»»åŠ¡
-            console.log('ğŸ”„ é‡è¯•ä»»åŠ¡:', task.task_id)
+            // ÖØÊÔÊ§°ÜµÄÈÎÎñ
+            console.log('?? ÖØÊÔÈÎÎñ:', task.task_id)
             
-            // æ¢å¤ä»»åŠ¡çš„åŸå§‹è¾“å…¥
+            // »Ö¸´ÈÎÎñµÄÔ­Ê¼ÊäÈë
             if (task.source_image) {
-              // å¦‚æœæœ‰ source_imageï¼Œå°è¯•æ¢å¤å›¾ç‰‡æ˜¾ç¤º
-              // æ³¨æ„ï¼šè¿™é‡Œéœ€è¦ä» task æ•°æ®ä¸­è·å–å›¾ç‰‡ä¿¡æ¯
-              console.log('æ¢å¤åŸå›¾:', task.source_image)
+              // Èç¹ûÓĞ source_image£¬³¢ÊÔ»Ö¸´Í¼Æ¬ÏÔÊ¾
+              // ×¢Òâ£ºÕâÀïĞèÒª´Ó task Êı¾İÖĞ»ñÈ¡Í¼Æ¬ĞÅÏ¢
+              console.log('»Ö¸´Ô­Í¼:', task.source_image)
             }
             
-            // æ ¹æ®ä»»åŠ¡é…ç½®æ¢å¤å‚è€ƒå›¾
+            // ¸ù¾İÈÎÎñÅäÖÃ»Ö¸´²Î¿¼Í¼
             if (task.config) {
               const config = task.config as Record<string, unknown>
               if (config.pose_image || config.reference_image || config.target_face_image) {
                 const refImage = config.pose_image || config.reference_image || config.target_face_image
-                console.log('æ¢å¤å‚è€ƒå›¾:', refImage)
+                console.log('»Ö¸´²Î¿¼Í¼:', refImage)
               }
             }
             
-            // æç¤ºç”¨æˆ·
-            if (confirm('ç¡®è®¤é‡è¯•æ­¤ä»»åŠ¡ï¼Ÿ\n\nç³»ç»Ÿä¼šä½¿ç”¨ç›¸åŒçš„å›¾ç‰‡å’Œé…ç½®é‡æ–°ç”Ÿæˆï¼Œä¸ä¼šé¢å¤–æ‰£é™¤ç§¯åˆ†ã€‚')) {
-              // ä½¿ç”¨ç›¸åŒçš„é…ç½®åˆ›å»ºæ–°ä»»åŠ¡
+            // ÌáÊ¾ÓÃ»§
+            if (confirm('È·ÈÏÖØÊÔ´ËÈÎÎñ£¿\n\nÏµÍ³»áÊ¹ÓÃÏàÍ¬µÄÍ¼Æ¬ºÍÅäÖÃÖØĞÂÉú³É£¬²»»á¶îÍâ¿Û³ı»ı·Ö¡£')) {
+              // Ê¹ÓÃÏàÍ¬µÄÅäÖÃ´´½¨ĞÂÈÎÎñ
               handleGenerate()
               
-              // åˆ·æ–°å†å²è®°å½•ï¼ˆåœ¨ä»»åŠ¡å®Œæˆåï¼‰
+              // Ë¢ĞÂÀúÊ·¼ÇÂ¼£¨ÔÚÈÎÎñÍê³Éºó£©
               setTimeout(() => {
                 setHistoryKey(prev => prev + 1)
               }, 1000)
@@ -541,7 +542,7 @@ export default function Editor() {
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={() => {
             setShowLoginModal(false)
-            // ç™»å½•æˆåŠŸåè‡ªåŠ¨è§¦å‘ç”Ÿæˆ
+            // µÇÂ¼³É¹¦ºó×Ô¶¯´¥·¢Éú³É
             setTimeout(() => {
               handleGenerate()
             }, 100)
