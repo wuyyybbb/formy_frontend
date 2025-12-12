@@ -21,15 +21,73 @@ export default function Editor() {
   const [searchParams] = useSearchParams()
   const modeFromUrl = searchParams.get('mode') as EditMode | null
   const [currentMode, setCurrentMode] = useState<EditMode>(modeFromUrl || 'HEAD_SWAP')
+  const STORAGE_KEY_PREFIX = 'formy-upload-state'
+
+  // ??????ï¿½ï¿½ key???????????????????
+  const getStorageKey = (mode: EditMode) => `${STORAGE_KEY_PREFIX}:${mode}`
+
+  // ?????ï¿½ï¿½????????
+  const loadUploadState = (): Record<EditMode, {
+    sourceImage: string | null
+    sourceFileId: string | null
+    referenceImage: string | null
+    referenceFileId: string | null
+  }> => {
+    const modes: EditMode[] = ['HEAD_SWAP', 'BACKGROUND_CHANGE', 'POSE_CHANGE']
+    const defaultState = {
+      HEAD_SWAP: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null },
+      BACKGROUND_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null },
+      POSE_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null }
+    } as Record<EditMode, {
+      sourceImage: string | null
+      sourceFileId: string | null
+      referenceImage: string | null
+      referenceFileId: string | null
+    }>
+
+    try {
+      const restored: typeof defaultState = { ...defaultState }
+      modes.forEach(mode => {
+        const raw = localStorage.getItem(getStorageKey(mode))
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          restored[mode] = {
+            sourceImage: parsed.sourceImage ?? null,
+            sourceFileId: parsed.sourceFileId ?? null,
+            referenceImage: parsed.referenceImage ?? null,
+            referenceFileId: parsed.referenceFileId ?? null
+          }
+        }
+      })
+      return restored
+    } catch (err) {
+      console.error('???????????:', err)
+      return defaultState
+    }
+  }
+
+  // ??????????????ï¿½ï¿½????ï¿½ï¿½
+  const saveUploadState = (mode: EditMode, state: {
+    sourceImage: string | null
+    sourceFileId: string | null
+    referenceImage: string | null
+    referenceFileId: string | null
+  }) => {
+    try {
+      localStorage.setItem(getStorageKey(mode), JSON.stringify(state))
+    } catch (err) {
+      console.error('????????????:', err)
+    }
+  }
   
-  // µ± URL ²ÎÊı±ä»¯Ê±¸üĞÂÄ£Ê½
+  // ?? URL ?????ï¿½ï¿½???????
   useEffect(() => {
     if (modeFromUrl && (modeFromUrl === 'HEAD_SWAP' || modeFromUrl === 'BACKGROUND_CHANGE' || modeFromUrl === 'POSE_CHANGE')) {
       setCurrentMode(modeFromUrl)
     }
   }, [modeFromUrl])
   
-  // ??? ÎªÃ¿¸öÄ£Ê½µ¥¶À±£´æÍ¼Æ¬×´Ì¬
+  // ??? ??????????????????
   const [modeImages, setModeImages] = useState<Record<EditMode, {
     sourceImage: string | null
     sourceFileId: string | null
@@ -41,36 +99,43 @@ export default function Editor() {
     POSE_CHANGE: { sourceImage: null, sourceFileId: null, referenceImage: null, referenceFileId: null }
   })
   
-  // µ±Ç°Ä£Ê½µÄÍ¼Æ¬×´Ì¬£¨·½±ã·ÃÎÊ£©
+  // ?????????????????????
   const sourceImage = modeImages[currentMode].sourceImage
   const sourceFileId = modeImages[currentMode].sourceFileId
   const referenceImage = modeImages[currentMode].referenceImage
   const referenceFileId = modeImages[currentMode].referenceFileId
   
-  // ½á¹ûÍ¼Æ¬£¨ËùÓĞÄ£Ê½¹²Ïí£¬µ«ÇĞ»»Ê±»áÇå¿Õ£©
+  // ??????????????????????ï¿½ï¿½????????
   const [resultImage, setResultImage] = useState<string | null>(null)
   const [comparisonImage, setComparisonImage] = useState<string | null>(null)
   
-  // ÈÎÎñ×´Ì¬
+  // ??????
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
-  const [taskMode, setTaskMode] = useState<EditMode | null>(null) // ¼ÇÂ¼ÈÎÎñËùÊôµÄÄ£Ê½
+  const [taskMode, setTaskMode] = useState<EditMode | null>(null) // ???????????????
   const [isProcessing, setIsProcessing] = useState(false)
   const [_taskStatus, setTaskStatus] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState<string | null>(null)
   const [taskError, setTaskError] = useState<TaskError | null>(null)
   const [processingTime, setProcessingTime] = useState<number | undefined>(undefined)
-  const [historyKey, setHistoryKey] = useState(0) // ÓÃÓÚ´¥·¢ÀúÊ·¼ÇÂ¼Ë¢ĞÂ
-  const [showLoginModal, setShowLoginModal] = useState(false) // ¿ØÖÆµÇÂ¼µ¯´°
+  const [historyKey, setHistoryKey] = useState(0) // ????????????????
+  const [showLoginModal, setShowLoginModal] = useState(false) // ??????????
   
-  // ?? µ±Ä£Ê½ÇĞ»»Ê±µÄ´¦Àí
+  // ??ï¿½ï¿½?????????????????????????????
   useEffect(() => {
-    console.log('?? Ä£Ê½ÇĞ»»µ½:', currentMode)
+    const restored = loadUploadState()
+    setModeImages(restored)
+    console.log('? ??????ï¿½ï¿½????????')
+  }, [])
+  
+  // ?? ?????ï¿½ï¿½???????
+  useEffect(() => {
+    console.log('?? ???ï¿½ï¿½???:', currentMode)
     
-    // ²ßÂÔ A£ºÎªÃ¿¸öÄ£Ê½±£Áô¸÷×ÔµÄÊäÈëÍ¼Æ¬£¬µ«Çå¿Õ½á¹ûºÍÈÎÎñ×´Ì¬ÏÔÊ¾
-    // 1. ÊäÈëÍ¼Æ¬»á×Ô¶¯»Ö¸´£¨ÒòÎª modeImages[currentMode] »áÇĞ»»µ½¶ÔÓ¦Ä£Ê½µÄÍ¼Æ¬£©
-    // 2. Çå¿Õ½á¹ûÍ¼Æ¬£¬ÒòÎª½á¹ûÊôÓÚ¾ÉÄ£Ê½
-    // 3. Èç¹ûµ±Ç°ÓĞÈÎÎñÔÚÔËĞĞ£¬ÇÒÈÎÎñÄ£Ê½²»ÊÇµ±Ç°Ä£Ê½£¬ÔòÒş²ØÈÎÎñ½ø¶È
+    // ???? A???????????????????????????????????????????
+    // 1. ??????????????????? modeImages[currentMode] ???ï¿½ï¿½??????????????
+    // 2. ??????????????????????
+    // 3. ?????????????????ï¿½ï¿½????????????????????????????????
     
     if (taskMode && taskMode !== currentMode) {
     
@@ -84,72 +149,82 @@ export default function Editor() {
     
     }
     
-    // Èç¹ûÓĞÈÎÎñÔÚÔËĞĞ£¬µ«ÈÎÎñÄ£Ê½²»Æ¥Åäµ±Ç°Ä£Ê½£¬ÔòÒş²Ø½ø¶ÈÏÔÊ¾
+    // ??????????????ï¿½ï¿½???????????????????????????????
     if (isProcessing && taskMode && taskMode !== currentMode) {
-      // ÈÎÎñÔÚºóÌ¨¼ÌĞøÔËĞĞ£¬µ«²»ÏÔÊ¾½ø¶È
+      // ???????????????ï¿½ï¿½????????????
       setProgress(0)
       setCurrentStep(null)
-      console.log(`?? ÈÎÎñ ${taskMode} ÔÚºóÌ¨ÔËĞĞ£¬µ±Ç°ÇĞ»»µ½ ${currentMode}£¬Òş²Ø½ø¶ÈÏÔÊ¾`)
+      console.log(`?? ???? ${taskMode} ???????ï¿½ï¿½?????ï¿½ï¿½??? ${currentMode}????????????`)
     }
     
-    console.log('? ÒÑÇĞ»»µ½Ä£Ê½:', currentMode, 'ÊäÈëÍ¼Æ¬ÒÑ»Ö¸´')
+    console.log('? ???ï¿½ï¿½?????:', currentMode, '??????????')
   }, [currentMode, isProcessing, taskMode])
   
-  // ´¦ÀíÔ­Í¼ÉÏ´«
+  // ?????????
   const handleSourceUpload = (result: UploadResult | null) => {
-    setModeImages(prev => ({
+    setModeImages(prev => {
+      const next = {
       ...prev,
       [currentMode]: {
         ...prev[currentMode],
         sourceImage: result?.imageUrl || null,
         sourceFileId: result?.fileId || null
       }
-    }))
+      }
+      // ????????????????
+      saveUploadState(currentMode, next[currentMode])
+      return next
+    })
   }
   
-  // ´¦Àí²Î¿¼Í¼ÉÏ´«
+  // ?????ï¿½ï¿½?????
   const handleReferenceUpload = (result: UploadResult | null) => {
-    setModeImages(prev => ({
+    setModeImages(prev => {
+      const next = {
       ...prev,
       [currentMode]: {
         ...prev[currentMode],
         referenceImage: result?.imageUrl || null,
         referenceFileId: result?.fileId || null
       }
-    }))
+      }
+      // ????????????????
+      saveUploadState(currentMode, next[currentMode])
+      return next
+    })
   }
   
-  // ÂÖÑ¯ÈÎÎñ×´Ì¬
+  // ?????????
   useTaskPolling({
     taskId: currentTaskId,
     enabled: isProcessing && currentTaskId !== null,
-    interval: 2500, // 2.5 ÃëÂÖÑ¯Ò»´Î
+    interval: 2500, // 2.5 ????????
     onUpdate: (taskInfo: TaskInfo) => {
-      // Ö»ÓĞµ±ÈÎÎñÄ£Ê½Æ¥Åäµ±Ç°Ä£Ê½Ê±£¬²Å¸üĞÂ½ø¶ÈÏÔÊ¾
+      // ??ï¿½ï¿½???????????????????????????
       if (taskMode === currentMode) {
         setTaskStatus(taskInfo.status)
         setProgress(taskInfo.progress)
         setCurrentStep(taskInfo.current_step || null)
         
-        console.log('ÈÎÎñ×´Ì¬¸üĞÂ:', {
+        console.log('??????????:', {
           task_id: taskInfo.task_id,
           status: taskInfo.status,
           progress: taskInfo.progress,
           current_step: taskInfo.current_step
         })
       } else {
-        console.log(`? ÈÎÎñ ${taskMode} ÔÚºóÌ¨ÔËĞĞ£¬µ±Ç°Ä£Ê½ ${currentMode}£¬²»ÏÔÊ¾½ø¶È`)
+        console.log(`? ???? ${taskMode} ???????ï¿½ï¿½?????? ${currentMode}???????????`)
       }
     },
     onComplete: (taskInfo: TaskInfo) => {
-      // ÈÎÎñÍê³É
+      // ???????
       console.log('? Task completed:', taskInfo)
       console.log('?? Result:', taskInfo.result)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.DONE)
       setProcessingTime(taskInfo.processing_time)
       
-      // Ö»ÓĞµ±ÈÎÎñÄ£Ê½Æ¥Åäµ±Ç°Ä£Ê½Ê±£¬²ÅÏÔÊ¾½á¹û
+      // ??ï¿½ï¿½????????????????????????
       if (taskMode === currentMode) {
         if (taskInfo.result?.output_image) {
           const resultUrl = getImageUrl(taskInfo.result.output_image, true)
@@ -160,108 +235,108 @@ export default function Editor() {
           const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true)
           setComparisonImage(comparisonUrl)
         }
-        console.log('? ½á¹ûÒÑÏÔÊ¾ÔÚµ±Ç°Ä£Ê½:', currentMode)
+        console.log('? ??????????????:', currentMode)
       } else {
-        console.log(`?? ÈÎÎñ ${taskMode} Íê³É£¬µ«µ±Ç°ÔÚ ${currentMode} Ä£Ê½£¬²»ÏÔÊ¾½á¹û`)
+        console.log(`?? ???? ${taskMode} ??????????? ${currentMode} ????????????`)
       }
       
-      // Ë¢ĞÂÀúÊ·¼ÇÂ¼
+      // ?????????
       setHistoryKey(prev => prev + 1)
     },
     onError: (taskInfo: TaskInfo) => {
-      // ÈÎÎñÊ§°Ü
-      console.error('? ÈÎÎñÊ§°Ü:', taskInfo)
+      // ???????
+      console.error('? ???????:', taskInfo)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.FAILED)
       
-      // ±£´æÍêÕûµÄ´íÎó¶ÔÏó
+      // ????????????????
       const error = taskInfo.error
       setTaskError(error || null)
       
-      // Ê¹ÓÃÍ³Ò»µÄ´íÎóÏûÏ¢¸ñÊ½»¯
+      // ??????????????????
       const formattedError = formatErrorDisplay(
         error?.code,
         error?.message,
         error?.details
       )
       
-      // ¼ÇÂ¼ÏêÏ¸ĞÅÏ¢µ½¿ØÖÆÌ¨
+      // ????????????????
       if (error) {
-        console.error('´íÎóÂë:', error.code)
-        console.error('´íÎóÏûÏ¢:', error.message)
+        console.error('??????:', error.code)
+        console.error('???????:', error.message)
         if (error.details) {
-          console.error('´íÎóÏêÇé:', error.details)
+          console.error('????????:', error.details)
         }
       }
       
-      // ¹¹½¨ÓÃ»§ÓÑºÃµÄÌáÊ¾ĞÅÏ¢
+      // ?????????????????
       let alertMessage = `? ${formattedError.title}\n\n${formattedError.message}`
       
-      // Ìí¼Ó½¨Òé
+      // ???????
       if (formattedError.suggestion) {
-        alertMessage += `\n\n?? ½¨Òé£º${formattedError.suggestion}`
+        alertMessage += `\n\n?? ???ï¿½${formattedError.suggestion}`
       }
       
-      // Ìí¼ÓÖØÊÔÌáÊ¾
+      // ???????????
       if (error?.code && isRetryableError(error.code)) {
-        alertMessage += '\n\n?? ÕâÊÇÒ»¸öÁÙÊ±´íÎó£¬½¨ÒéÉÔºóÖØÊÔ'
+        alertMessage += '\n\n?? ????????????????????????'
       }
       
-      // µ¯´°ÏÔÊ¾´íÎó
+      // ???????????
       alert(alertMessage)
     }
   })
   
-  // ´¦ÀíÉú³É°´Å¥µã»÷
+  // ?????????????
   const handleGenerate = async () => {
-    // 0. ¼ì²éÓÃ»§ÊÇ·ñÒÑµÇÂ¼
+    // 0. ?????????????
     if (!isLoggedIn()) {
       setShowLoginModal(true)
       return
     }
     
-    // 1. ¼ì²éÊÇ·ñÓĞÈÎÎñÕıÔÚÔËĞĞ
+    // 1. ????????????????????
     if (isProcessing && currentTaskId) {
-      // »ñÈ¡µ±Ç°ÕıÔÚÔËĞĞµÄÈÎÎñÄ£Ê½
+      // ?????????????ï¿½ï¿½???????
       const modeNames: Record<string, string> = {
-        'HEAD_SWAP': '»»Í·',
-        'BACKGROUND_CHANGE': '»»±³¾°',
-        'POSE_CHANGE': '»»×ËÊÆ'
+        'HEAD_SWAP': '???',
+        'BACKGROUND_CHANGE': '??????',
+        'POSE_CHANGE': '??????'
       }
       const currentModeName = modeNames[currentMode] || currentMode
       
       alert(
-        `? µ±Ç°ÓĞÈÎÎñÕıÔÚÔËĞĞÖĞ...\n\n` +
-        `ÕıÔÚÖ´ĞĞ£º${currentModeName}\n\n` +
-        `ÇëµÈ´ıÈÎÎñÍê³ÉºóÔÙ´´½¨ĞÂÈÎÎñ¡£\n\n` +
-        `?? ÌáÊ¾£ºÄú¿ÉÒÔÔÚÓÒ²àÀúÊ·¼ÇÂ¼ÖĞ²é¿´ÈÎÎñ½ø¶È¡£`
+        `? ???????????????????...\n\n` +
+        `??????ï¿½ï¿½?${currentModeName}\n\n` +
+        `???????????????????????\n\n` +
+        `?? ???????????????????????ï¿½ï¿½?????????`
       )
       return
     }
     
-    // 2. ÑéÖ¤±ØÒªµÄÍ¼Æ¬ÒÑÉÏ´«
+    // 2. ???????????????
     if (!sourceFileId) {
-      alert('ÇëÏÈÉÏ´«Ô­Ê¼Í¼Æ¬')
+      alert('???????????')
       return
     }
     
-    // 3. ¸ù¾İÄ£Ê½ÑéÖ¤ÊÇ·ñĞèÒª²Î¿¼Í¼
+    // 3. ????????????????ï¿½ï¿½??
     if ((currentMode === 'HEAD_SWAP' || currentMode === 'POSE_CHANGE' || currentMode === 'BACKGROUND_CHANGE') && !referenceFileId) {
-      const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? '±³¾°Í¼Æ¬' : '²Î¿¼Í¼Æ¬'
-      alert(`´ËÄ£Ê½ĞèÒªÉÏ´«${imageTypeName}`)
+      const imageTypeName = currentMode === 'BACKGROUND_CHANGE' ? '??????' : '?ï¿½ï¿½???'
+      alert(`??????????${imageTypeName}`)
       return
     }
     
-    // 4. ÖØÖÃ×´Ì¬
+    // 4. ??????
     setResultImage(null)
     setTaskError(null)
     setProgress(0)
     setCurrentStep(null)
     
-    // 5. ×é×°ÇëÇóÌå
+    // 5. ?????????
     const config: Record<string, any> = {}
     
-    // ¸ù¾İ²»Í¬Ä£Ê½Ìí¼ÓÅäÖÃ
+    // ????????????????
     if (currentMode === 'HEAD_SWAP' && referenceFileId) {
       config.target_face_image = referenceFileId
     } else if (currentMode === 'BACKGROUND_CHANGE' && referenceFileId) {
@@ -274,36 +349,36 @@ export default function Editor() {
       setIsProcessing(true)
       setTaskStatus(TaskStatus.PENDING)
       
-      // 6. ·¢ËÍ´´½¨ÈÎÎñÇëÇó
+      // 6. ???????????????
       const taskInfo = await createTask({
         mode: currentMode as ApiEditMode,
         source_image: sourceFileId,
         config
       })
       
-      // 7. ¼Ç×¡ task_id ºÍÈÎÎñÄ£Ê½£¬ÂÖÑ¯»á×Ô¶¯¿ªÊ¼
+      // 7. ??? task_id ?????????????????????
       setCurrentTaskId(taskInfo.task_id)
       setTaskMode(currentMode)
       setTaskStatus(taskInfo.status)
       
-      console.log('ÈÎÎñ´´½¨³É¹¦£¬¿ªÊ¼ÂÖÑ¯:', taskInfo, 'Ä£Ê½:', currentMode)
+      console.log('????????????????:', taskInfo, '??:', currentMode)
       
     } catch (error) {
-      console.error('´´½¨ÈÎÎñÊ§°Ü:', error)
+      console.error('???????????:', error)
       
-      // ÌáÈ¡´íÎóĞÅÏ¢
-      let errorMsg = 'Î´Öª´íÎó'
+      // ??????????
+      let errorMsg = 'ï¿½ï¿½?????'
       if (error instanceof Error) {
         errorMsg = error.message
       } else if (typeof error === 'string') {
         errorMsg = error
       } else if (error && typeof error === 'object') {
-        // ³¢ÊÔ´Ó¶ÔÏóÖĞÌáÈ¡´íÎóĞÅÏ¢
+        // ????????????????????
         const err = error as any
         errorMsg = err.message || err.error || JSON.stringify(error)
       }
       
-      alert('´´½¨ÈÎÎñÊ§°Ü:\n' + errorMsg)
+      alert('???????????:\n' + errorMsg)
       setIsProcessing(false)
       setTaskStatus(TaskStatus.FAILED)
       setCurrentTaskId(null)
@@ -316,18 +391,18 @@ export default function Editor() {
       <header className="border-b border-dark-border backdrop-blur-sm flex-shrink-0 z-10">
         <div className="px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* ×ó²à£ºLogo */}
+            {/* ???Logo */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-base flex-shrink-0">
               <div className="w-8 h-8 bg-primary rounded-sm"></div>
               <span className="text-xl font-bold">Formy</span>
             </Link>
             
-            {/* ÖĞ¼ä£ºMode Tabs */}
+            {/* ?ï¿½ï¿½?Mode Tabs */}
             <div className="hidden md:flex flex-1 justify-center">
               <ModeTabs currentMode={currentMode} onModeChange={setCurrentMode} />
             </div>
 
-            {/* ÓÒ²à£ºUser Menu */}
+            {/* ???User Menu */}
             <div className="flex-shrink-0">
               <UserMenu />
             </div>
@@ -379,72 +454,82 @@ export default function Editor() {
           key={historyKey}
           currentMode={currentMode}
           onSelectTask={async (task) => {
-            // µã»÷ÀúÊ·ÈÎÎñÊ±£¬ÏÈµ÷ÓÃ API »ñÈ¡ÍêÕûÈÎÎñÏêÇé
-            console.log('?? µã»÷ÀúÊ·ÈÎÎñ:', task.task_id)
+            // ?????????????????? API ???????????????
+            console.log('?? ??????????:', task.task_id)
             
             try {
-              // µ÷ÓÃ GET /api/v1/tasks/{task_id} »ñÈ¡ÍêÕûÈÎÎñÏêÇé
+              // ???? GET /api/v1/tasks/{task_id} ???????????????
               const { getTask } = await import('../api/tasks')
               const taskDetail = await getTask(task.task_id)
-              console.log('? »ñÈ¡ÈÎÎñÏêÇé:', taskDetail)
+              console.log('? ???????????:', taskDetail)
               
-              // 1. »Ö¸´Ô­Ê¼Í¼Æ¬
+              // 1. ???????
               if (taskDetail.source_image) {
-                // source_image ÊÇ file_id£¬ĞèÒª×ª»»ÎªÍêÕû URL
+                // source_image ï¿½ï¿½ file_idï¿½ï¿½ï¿½ï¿½Òª×ªï¿½ï¿½Îªï¿½ï¿½ï¿½Ãµï¿½ URL
                 const sourceUrl = getImageUrl(`/uploads/source/${taskDetail.source_image}`)
-                setModeImages(prev => ({
-                  ...prev,
-                  [currentMode]: {
-                    ...prev[currentMode],
-                    sourceImage: sourceUrl,
-                    sourceFileId: taskDetail.source_image
+                setModeImages(prev => {
+                  const next = {
+                    ...prev,
+                    [currentMode]: {
+                      ...prev[currentMode],
+                      sourceImage: sourceUrl,
+                      sourceFileId: taskDetail.source_image
+                    }
                   }
-                }))
-                console.log('? »Ö¸´Ô­Ê¼Í¼Æ¬µ½Ä£Ê½', currentMode, ':', sourceUrl)
+                  // ï¿½Ö¾Ã»ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ï´ï¿½×´Ì¬
+                  saveUploadState(currentMode, next[currentMode])
+                  return next
+                })
+                console.log('? ï¿½Ö¸ï¿½Ô­Ê¼Í¼Æ¬ï¿½ï¿½Ä£Ê½', currentMode, ':', sourceUrl)
               }
               
-              // 2. »Ö¸´²Î¿¼Í¼Æ¬£¨¸ù¾İ²»Í¬Ä£Ê½´Ó²»Í¬×Ö¶Î»ñÈ¡£©
+              // 2. ????ï¿½ï¿½???????????????????ï¿½ï¿½????
               let referenceFileId: string | null = null
               
-              // ÓÅÏÈ´Ó reference_image ×Ö¶Î»ñÈ¡
+              // ????? reference_image ??ï¿½ï¿½??
               if (taskDetail.reference_image) {
                 referenceFileId = taskDetail.reference_image
               }
-              // Èç¹ûÃ»ÓĞ£¬´Ó config ÖĞ¸ù¾İÄ£Ê½»ñÈ¡
+              // ?????ï¿½ï¿½??? config ?ï¿½ï¿½????????
               else if (taskDetail.config) {
                 if (currentMode === 'BACKGROUND_CHANGE') {
-                  // »»±³¾°£º´Ó background_image »ò bg_image »ñÈ¡
+                  // ?????????? background_image ?? bg_image ???
                   referenceFileId = taskDetail.config.background_image || taskDetail.config.bg_image
                 } else if (currentMode === 'HEAD_SWAP') {
-                  // »»Í·£º´Ó target_face_image »ò cloth_image »ñÈ¡
+                  // ??????? target_face_image ?? cloth_image ???
                   referenceFileId = taskDetail.config.target_face_image || taskDetail.config.cloth_image || taskDetail.config.reference_image
                 } else if (currentMode === 'POSE_CHANGE') {
-                  // »»×ËÊÆ£º´Ó pose_image »ò pose_reference »ñÈ¡
+                  // ????????? pose_image ?? pose_reference ???
                   referenceFileId = taskDetail.config.pose_image || taskDetail.config.pose_reference || taskDetail.config.reference_image
                 }
               }
               
               if (referenceFileId) {
-                // ²Î¿¼Í¼Æ¬Ò²ÊÇ file_id£¬ĞèÒª×ª»»ÎªÍêÕû URL
+                // ï¿½Î¿ï¿½Í¼Æ¬Ò²ï¿½ï¿½ file_idï¿½ï¿½ï¿½ï¿½Òª×ªï¿½ï¿½Îªï¿½ï¿½ï¿½Ãµï¿½ URL
                 const referenceUrl = getImageUrl(`/uploads/reference/${referenceFileId}`)
-                setModeImages(prev => ({
-                  ...prev,
-                  [currentMode]: {
-                    ...prev[currentMode],
-                    referenceImage: referenceUrl,
-                    referenceFileId: referenceFileId
+                setModeImages(prev => {
+                  const next = {
+                    ...prev,
+                    [currentMode]: {
+                      ...prev[currentMode],
+                      referenceImage: referenceUrl,
+                      referenceFileId: referenceFileId
+                    }
                   }
-                }))
-                console.log('? »Ö¸´²Î¿¼Í¼Æ¬µ½Ä£Ê½', currentMode, ':', referenceUrl)
+                  // ï¿½Ö¾Ã»ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ï´ï¿½×´Ì¬
+                  saveUploadState(currentMode, next[currentMode])
+                  return next
+                })
+                console.log('? ï¿½Ö¸ï¿½ï¿½Î¿ï¿½Í¼Æ¬ï¿½ï¿½Ä£Ê½', currentMode, ':', referenceUrl)
               } else {
-                console.log('??  ¸ÃÈÎÎñÃ»ÓĞ²Î¿¼Í¼Æ¬')
+                console.log('??  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ş²Î¿ï¿½Í¼Æ¬')
               }
               
-              // 3. »Ö¸´Êä³ö½á¹û£¨ÓÒ²àÔ¤ÀÀ£©
+              // 3. ???????????????????
               if (taskDetail.result?.output_image) {
                 const resultUrl = getImageUrl(taskDetail.result.output_image, true)
                 setResultImage(resultUrl)
-                console.log('? »Ö¸´½á¹ûÍ¼Æ¬:', resultUrl)
+                console.log('? ????????:', resultUrl)
               } else {
                 setResultImage(null)
               }
@@ -452,12 +537,12 @@ export default function Editor() {
               if (taskDetail.result?.comparison_image) {
                 const comparisonUrl = getImageUrl(taskDetail.result.comparison_image, true)
                 setComparisonImage(comparisonUrl)
-                console.log('? »Ö¸´¶Ô±ÈÍ¼Æ¬:', comparisonUrl)
+                console.log('? ????????:', comparisonUrl)
               } else {
                 setComparisonImage(null)
               }
               
-              // 4. »Ö¸´ÈÎÎñ×´Ì¬
+              // 4. ?????????
               setCurrentTaskId(taskDetail.task_id)
               setTaskStatus(taskDetail.status)
               setProgress(taskDetail.progress)
@@ -471,10 +556,10 @@ export default function Editor() {
                 setProcessingTime((taskDetail as any).processing_time)
               }
               
-              console.log('? ÀúÊ·ÈÎÎñ×´Ì¬ÒÑÍêÈ«»Ö¸´')
+              console.log('? ?????????????????')
             } catch (error) {
-              console.error('? »ñÈ¡ÈÎÎñÏêÇéÊ§°Ü:', error)
-              // ¼´Ê¹Ê§°ÜÒ²¾¡Á¿ÏÔÊ¾ÁĞ±íÖĞµÄĞÅÏ¢
+              console.error('? ??????????????:', error)
+              // ???????????????ï¿½ï¿½??ï¿½ï¿½????
               if (task.result?.output_image) {
                 const resultUrl = getImageUrl(task.result.output_image, true)
                 setResultImage(resultUrl)
@@ -482,31 +567,31 @@ export default function Editor() {
             }
           }}
           onRetryTask={(task) => {
-            // ÖØÊÔÊ§°ÜµÄÈÎÎñ
-            console.log('?? ÖØÊÔÈÎÎñ:', task.task_id)
+            // ????????????
+            console.log('?? ????????:', task.task_id)
             
-            // »Ö¸´ÈÎÎñµÄÔ­Ê¼ÊäÈë
+            // ??????????????
             if (task.source_image) {
-              // Èç¹ûÓĞ source_image£¬³¢ÊÔ»Ö¸´Í¼Æ¬ÏÔÊ¾
-              // ×¢Òâ£ºÕâÀïĞèÒª´Ó task Êı¾İÖĞ»ñÈ¡Í¼Æ¬ĞÅÏ¢
-              console.log('»Ö¸´Ô­Í¼:', task.source_image)
+              // ????? source_image?????????????
+              // ???????????? task ?????ï¿½ï¿½???????
+              console.log('?????:', task.source_image)
             }
             
-            // ¸ù¾İÈÎÎñÅäÖÃ»Ö¸´²Î¿¼Í¼
+            // ???????????????ï¿½ï¿½??
             if (task.config) {
               const config = task.config as Record<string, unknown>
               if (config.pose_image || config.reference_image || config.target_face_image) {
                 const refImage = config.pose_image || config.reference_image || config.target_face_image
-                console.log('»Ö¸´²Î¿¼Í¼:', refImage)
+                console.log('????ï¿½ï¿½??:', refImage)
               }
             }
             
-            // ÌáÊ¾ÓÃ»§
-            if (confirm('È·ÈÏÖØÊÔ´ËÈÎÎñ£¿\n\nÏµÍ³»áÊ¹ÓÃÏàÍ¬µÄÍ¼Æ¬ºÍÅäÖÃÖØĞÂÉú³É£¬²»»á¶îÍâ¿Û³ı»ı·Ö¡£')) {
-              // Ê¹ÓÃÏàÍ¬µÄÅäÖÃ´´½¨ĞÂÈÎÎñ
+            // ??????
+            if (confirm('????????????\n\n???????????????????????????????????????????')) {
+              // ?????????????????????
               handleGenerate()
               
-              // Ë¢ĞÂÀúÊ·¼ÇÂ¼£¨ÔÚÈÎÎñÍê³Éºó£©
+              // ?????????????????????
               setTimeout(() => {
                 setHistoryKey(prev => prev + 1)
               }, 1000)
@@ -549,7 +634,7 @@ export default function Editor() {
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={() => {
             setShowLoginModal(false)
-            // µÇÂ¼³É¹¦ºó×Ô¶¯´¥·¢Éú³É
+            // ???????????????????
             setTimeout(() => {
               handleGenerate()
             }, 100)
