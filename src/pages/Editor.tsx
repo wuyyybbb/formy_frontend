@@ -72,10 +72,17 @@ export default function Editor() {
     // 2. 清空结果图片，因为结果属于旧模式
     // 3. 如果当前有任务在运行，且任务模式不是当前模式，则隐藏任务进度
     
-    setResultImage(null)
-    setComparisonImage(null)
-    setTaskError(null)
-    setProcessingTime(undefined)
+    if (taskMode && taskMode !== currentMode) {
+    
+      setResultImage(null)
+    
+      setComparisonImage(null)
+    
+      setTaskError(null)
+    
+      setProcessingTime(undefined)
+    
+    }
     
     // 如果有任务在运行，但任务模式不匹配当前模式，则隐藏进度显示
     if (isProcessing && taskMode && taskMode !== currentMode) {
@@ -552,4 +559,5 @@ export default function Editor() {
     </div>
   )
 }
+
 
