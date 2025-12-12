@@ -146,15 +146,11 @@ export default function Editor() {
         if (taskInfo.result?.output_image) {
           const resultUrl = getImageUrl(taskInfo.result.output_image, true)
           setResultImage(resultUrl)
-        } else {
-          setResultImage(null)
         }
         
         if (taskInfo.result?.comparison_image) {
           const comparisonUrl = getImageUrl(taskInfo.result.comparison_image, true)
           setComparisonImage(comparisonUrl)
-        } else {
-          setComparisonImage(null)
         }
         console.log('✅ 结果已显示在当前模式:', currentMode)
       } else {
